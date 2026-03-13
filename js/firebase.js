@@ -33,7 +33,7 @@ const defaultSchools = {
     name: "Facultad de Ciencias de la Salud",
     careers: [
       { name: "Enfermería", img: "https://upeu.edu.pe/facultad-de-salud/wp-content/uploads/sites/6/2024/05/enfer-e1726161841770.jpg",    scheduleUrl: "https://drive.google.com/file/d/1D-nYVjs6nnpc1fLq8Q4V3coTTeUlDnLA/preview" },
-      { name: "Nutrición",  img: "https://scontent.flim10-1.fna.fbcdn.net/v/t39.30808-6/482123448_1047301527431571_9171378740564011403_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=ui6GEJmhHskQ7kNvwGChcIO&_nc_oc=Adn7258nGv5Kjic75wHdrHOzR4kVpr1ctpBLQvQkqmbawKVgya3Dt5b0UrJcphrmZOU&_nc_zt=23&_nc_ht=scontent.flim10-1.fna&_nc_gid=dk-z7yOLjrPWTvGkLVnRvA&oh=00_AfZD8HrJL42mitdo0M4zSKx3J2lAlf-oKk1_xJ5ltJhOxw&oe=68E4C35D", scheduleUrl: "https://drive.google.com/file/d/1CL01AnyrzJA9pISjP4KBZBU7cap3fKqi/preview" },
+      { name: "Nutrición",  img: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600&q=80", scheduleUrl: "https://drive.google.com/file/d/1CL01AnyrzJA9pISjP4KBZBU7cap3fKqi/preview" },
       { name: "Psicología", img: "https://upeu.edu.pe/facultad-de-salud/wp-content/uploads/sites/6/2023/08/enfermera-2023-1.jpg",        scheduleUrl: "https://drive.google.com/file/d/1bpPtfRQzd3FKqYrdTnO88BUMr3SIN0cF/preview" }
     ]
   },
@@ -49,7 +49,7 @@ const defaultSchools = {
   FACIHED: {
     name: "Facultad de Ciencias Humanas y Educación",
     careers: [
-      { name: "Educación Física",                           img: "https://scontent.flim10-1.fna.fbcdn.net/v/t1.6435-9/74495177_960545844323567_527685359933325312_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=0b6b33&_nc_ohc=NhNs1OHWn3QQ7kNvwGYkbdg&_nc_oc=AdkSCO1NcFYHhupg67DwwlyGQvPVckqeN_8CU010efpz45VrMekVUaV0Zb4j9efUvDM&_nc_zt=23&_nc_ht=scontent.flim10-1.fna&_nc_gid=N7aUN7OMLRDkFCj9aYKwiA&oh=00_AffzIBUO91QzBHYeXBAwEF755zZeOfcs_8ZOY09wqE3ahw&oe=69065B55", scheduleUrl: "https://drive.google.com/file/d/1mOtpLtJgwaWdOvN5LCJWSTL46Da0zMCV/preview" },
+      { name: "Educación Física",                           img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=600&q=80", scheduleUrl: "https://drive.google.com/file/d/1mOtpLtJgwaWdOvN5LCJWSTL46Da0zMCV/preview" },
       { name: "Educación Inglés y Español",                 img: "https://pedagogicochimbote.edu.pe/wp-content/uploads/2023/01/PORTADAS-PROGRAMAS-04.jpg",             scheduleUrl: "https://drive.google.com/file/d/1gLs3LQJ8gqxG040ANaUyG2yOSxfT7Umb/preview" },
       { name: "Educación Inicial y Puericultura",           img: "https://blog.upeu.edu.pe/wp-content/uploads/2025/04/teacher-performs-exercises-to-the-children-2024-11-25-15-03-00-utc-2048x1365.jpg", scheduleUrl: "https://drive.google.com/file/d/1jWh5mGeS2WoR6cFYARr9KQEyIoKaYTxN/preview" },
       { name: "Educación Lingüística e Inglés",             img: "https://upeu.edu.pe/facultad-de-educacion/wp-content/uploads/sites/4/2024/09/INGLE-MAN-e1725403847871.jpg", scheduleUrl: "https://drive.google.com/file/d/1h1hv-YWoz25aD6hmPhkF1_yWI_jM_Wtv/preview" },

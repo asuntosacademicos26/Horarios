@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(where npm:*)",
+      "Bash(firebase --version 2>/dev/null || echo \"no-instalado\")",
+      "Bash(cd \"D:/horario/Horarios\" && gsutil cors set cors.json gs://horario-b4ff3.firebasestorage.app 2>&1)",
+      "Bash(gcloud --version 2>&1 | head -1 || echo \"no-instalado\")",
+      "Bash(firebase help:*)",
+      "Bash(cd \"D:/horario/Horarios\" && npx gsutil 2>&1 | head -3 || echo \"no disponible\")"
+    ]
+  }
+}
