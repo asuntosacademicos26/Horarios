@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administrador – UPeU Horarios</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:      #003865;
+      --blue-dark: #002548;
+      --blue-mid:  #004e8c;
+      --accent:    #f59e0b;
+      --danger:    #dc2626;
+      --success:   #16a34a;
+      --bg:        #f1f5f9;
+      --card:      #ffffff;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --border:    #e2e8f0;
+      --sidebar-w: 230px;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ══════════════════════════════════════
+       LOGIN
+    ══════════════════════════════════════ */
+    #loginScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
+    }
+
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 380px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+      text-align: center;
+    }
+
+    .login-card img {
+      height: 80px;
+      margin-bottom: 24px;
+      filter: none;
+    }
+
+    .login-card h2 {
+      font-size: 22px;
+      color: var(--blue);
+      margin-bottom: 8px;
+    }
+
+    .login-card p {
+      color: var(--muted);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 15px;
+      margin-bottom: 14px;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .login-card input:focus { border-color: var(--blue); }
+
+    .login-card button[type="submit"] {
+      width: 100%;
+      padding: 13px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+    }
+
+    .login-card button[type="submit"]:hover { background: var(--blue-dark); }
+
+    #loginError {
+      color: var(--danger);
+      font-size: 13px;
+      min-height: 18px;
+      margin-bottom: 10px;
+      text-align: left;
+    }
+
+    /* ══════════════════════════════════════
+       DASHBOARD
+    ══════════════════════════════════════ */
+    #dashboard {
+      display: none;
+      min-height: 100vh;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .dash-header {
+      background: var(--blue);
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 0 28px;
+      height: 62px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .dash-header img { height: 38px; }
+
+    .dash-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      flex: 1;
+    }
+
+    .back-link {
+      color: #a8c7e8;
+      text-decoration: none;
+      font-size: 13px;
+      margin-right: 8px;
+    }
+    .back-link:hover { color: white; }
+
+    #logoutBtn {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 7px 16px;
+      border-radius: 7px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    #logoutBtn:hover { background: rgba(255,255,255,0.22); }
+
+    /* Layout */
+    .dash-body {
+      display: flex;
+      flex: 1;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-w);
+      background: var(--blue-dark);
+      padding: 24px 0;
+      flex-shrink: 0;
+      min-height: calc(100vh - 62px);
+    }
+
+    .sidebar-label {
+      color: #7fa8c9;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      padding: 0 20px 10px;
+    }
+
+    .tab-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 12px 20px;
+      background: transparent;
+      border: none;
+      color: #a8c7e8;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: left;
+      border-left: 3px solid transparent;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .tab-btn:hover { background: rgba(255,255,255,0.07); color: white; }
+
+    .tab-btn.active {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-left-color: var(--accent);
+    }
+
+    .tab-btn .icon { font-size: 18px; }
+
+    /* Main content */
+    .dash-main {
+      flex: 1;
+      padding: 32px;
+      overflow-y: auto;
+    }
+
+    /* Tab panes */
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Section title */
+    .section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--blue);
+      margin-bottom: 4px;
+    }
+
+    .section-sub {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 28px;
+    }
+
+    /* Cards */
+    .panel-card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .panel-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--blue);
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Forms */
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .form-row.single { grid-template-columns: 1fr; }
+
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+    .form-group label { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+    .form-group input, .form-group select {
+      padding: 10px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      color: var(--text);
+    }
+
+    .form-group input:focus, .form-group select:focus { border-color: var(--blue); }
+
+    .form-hint {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    /* Image preview */
+    #imgPreviewBox {
+      display: none;
+      margin-top: 10px;
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 260px;
+      border: 2px solid var(--border);
+    }
+
+    #imgPreview {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* Form actions */
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    button, .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s, background 0.15s;
+    }
+
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .btn-primary   { background: var(--blue);    color: white; }
+    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
+
+    .btn-secondary { background: #e2e8f0; color: var(--text); }
+    .btn-secondary:hover { background: #cbd5e1; }
+
+    .btn-danger    { background: #fee2e2; color: var(--danger); }
+    .btn-danger:hover { background: #fecaca; }
+
+    .btn-outline   { background: white; border: 1.5px solid var(--blue); color: var(--blue); }
+    .btn-outline:hover { background: #eff6ff; }
+
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+    /* Faculty select */
+    .faculty-selector {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .faculty-selector label { font-size: 14px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+
+    .faculty-selector select {
+      padding: 9px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      min-width: 280px;
+    }
+
+    /* Faculty table */
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f8fafc; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+    td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f8fafc; }
+
+    .badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1d4ed8;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    /* Career grid */
+    .career-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .career-card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      transition: box-shadow 0.2s;
+    }
+
+    .career-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+
+    .career-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .career-card-body { padding: 14px; }
+    .career-card-body h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; line-height: 1.35; }
+
+    .career-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    /* Empty message */
+    .empty-msg { color: var(--muted); font-size: 14px; padding: 20px 0; }
+
+    /* PDF Modal */
+    #pdfModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 999;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .pdf-modal-content {
+      background: white;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 960px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+
+    .pdf-modal-header {
+      background: var(--blue);
+      color: white;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+    }
+
+    .pdf-modal-header button {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 22px;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+    }
+
+    #pdfFrame {
+      width: 100%;
+      flex: 1;
+      border: none;
+      min-height: 600px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--success);
+      color: white;
+      padding: 14px 22px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s, transform 0.3s;
+      z-index: 9999;
+      max-width: 340px;
+    }
+
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast.error { background: var(--danger); }
+
+    /* Responsive */
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+      .form-row { grid-template-columns: 1fr; }
+      .dash-main { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     PANTALLA DE LOGIN
+══════════════════════════════════════ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <img src="logo-upeu-white.png" alt="Logo UPeU"
+         onerror="this.style.display='none'">
+    <h2>Panel de Administración</h2>
+    <p>Ingresa tus credenciales para continuar</p>
+    <form id="loginForm" autocomplete="off">
+      <input type="text"     id="username" placeholder="Usuario"     required autocomplete="off">
+      <input type="password" id="password" placeholder="Contraseña"  required>
+      <div id="loginError"></div>
+      <button type="submit">Ingresar</button>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     DASHBOARD
+══════════════════════════════════════ -->
+<div id="dashboard">
+
+  <!-- Header -->
+  <div class="dash-header">
+    <img src="logo-upeu-white.png" alt="Logo UPeU" onerror="this.style.display='none'">
+    <h1>Panel de Administración &mdash; UPeU Juliaca</h1>
+    <a href="index.html" class="back-link">&#8592; Ir al sitio</a>
+    <button id="logoutBtn">Cerrar sesi&oacute;n</button>
+  </div>
+
+  <div class="dash-body">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-label">M&oacute;dulos</div>
+      <button class="tab-btn active" data-tab="facultades">
+        <span class="icon">🏛️</span> Facultades
+      </button>
+      <button class="tab-btn" data-tab="carreras">
+        <span class="icon">📚</span> Escuelas Profesionales
+      </button>
+    </aside>
+
+    <!-- Content -->
+    <main class="dash-main">
+
+      <!-- ── TAB: FACULTADES ── -->
+      <div id="tab-facultades" class="tab-pane active">
+        <div class="section-title">Facultades</div>
+        <div class="section-sub">Gestiona las facultades de la universidad.</div>
+
+        <div class="panel-card">
+          <h3>➕ Nueva Facultad</h3>
+          <form id="addFacultyForm">
+            <div class="form-row">
+              <div class="form-group">
+                <label>C&oacute;digo</label>
+                <input type="text" id="facultyKey" placeholder="Ej: FIA, FCS, FCE" required>
+                <span class="form-hint">Se convertir&aacute; a may&uacute;sculas autom&aacute;ticamente.</span>
+              </div>
+              <div class="form-group">
+                <label>Nombre completo</label>
+                <input type="text" id="facultyName" placeholder="Ej: Facultad de Ingeniería y Arquitectura" required>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">➕ Agregar Facultad</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel-card">
+          <h3>📋 Facultades Registradas</h3>
+          <div id="facultyList"><p class="empty-msg">Cargando...</p></div>
+        </div>
+      </div>
+
+      <!-- ── TAB: CARRERAS ── -->
+      <div id="tab-carreras" class="tab-pane">
+        <div class="section-title">Escuelas Profesionales</div>
+        <div class="section-sub">Gestiona las carreras dentro de cada facultad.</div>
+
+        <!-- Selector de facultad -->
+        <div class="faculty-selector">
+          <label>Facultad:</label>
+          <select id="facultySelect"></select>
+        </div>
+
+        <!-- Formulario nueva / editar carrera -->
+        <div class="panel-card" id="careerFormSection">
+          <h3 id="formTitle">➕ Nueva Escuela Profesional</h3>
+          <form id="careerForm" autocomplete="off">
+            <div class="form-row single">
+              <div class="form-group">
+                <label>Nombre de la Escuela Profesional</label>
+                <input type="text" id="careerName" placeholder="Ej: Ingeniería de Sistemas" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>URL de la Imagen</label>
+                <input type="url" id="careerImg" placeholder="https://..." required>
+                <span class="form-hint">Pega la URL p&uacute;blica de la imagen de la carrera.</span>
+                <div id="imgPreviewBox">
+                  <img id="imgPreview" src="" alt="Vista previa">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>URL del Horario (PDF)</label>
+                <input type="url" id="careerSchedule" placeholder="https://drive.google.com/file/d/..." required>
+                <span class="form-hint">
+                  Acepta enlaces de Google Drive. Formato /view o /preview, ambos funcionan.
+                </span>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="submit" id="submitCareerBtn" class="btn-primary">Agregar</button>
+              <button type="button" id="cancelEditBtn" class="btn-secondary"
+                      style="display:none;" onclick="cancelEdit()">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Lista de carreras -->
+        <div class="panel-card">
+          <h3>📋 Escuelas Registradas</h3>
+          <div id="careerList"><p class="empty-msg">Cargando...</p></div>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- end dash-body -->
+</div><!-- end dashboard -->
+
+<!-- ── MODAL PDF ── -->
+<div id="pdfModal">
+  <div class="pdf-modal-content">
+    <div class="pdf-modal-header">
+      <span>Vista de Horario</span>
+      <button id="closePdfModal">&times;</button>
+    </div>
+    <iframe id="pdfFrame" allowfullscreen></iframe>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script type="module" src="js/admin.js"></script>
+</body>
+</html>

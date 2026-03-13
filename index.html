@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <title>Horarios Académicos - UPeU Juliaca</title>
   <style>
+    * { box-sizing: border-box; }
+
     body {
       font-family: Arial, sans-serif;
       background: #f8fafc;
@@ -13,25 +15,113 @@
       display: flex;
       flex-direction: column;
     }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 340px;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 60%;
+      display: block;
+    }
+
+    /* Gradiente oscuro sobre la imagen */
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0, 30, 65, 0.70) 0%,
+        rgba(0, 30, 65, 0.45) 100%
+      );
+    }
+
+    /* Botón admin arriba a la derecha */
+    .hero-admin-btn {
+      position: absolute;
+      top: 20px;
+      right: 24px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      color: white;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: background 0.2s;
+      z-index: 10;
+    }
+    .hero-admin-btn:hover { background: rgba(255,255,255,0.22); }
+
+    /* Logo arriba a la izquierda */
+    .hero-logo {
+      position: absolute;
+      top: 22px;
+      left: 28px;
+      height: 90px;
+      width: auto;
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
+    }
+
+    /* Texto de bienvenida centrado */
+    .hero-text {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px 160px; /* espacio lateral para no pisar el logo */
+      pointer-events: none;
+    }
+
+    .hero-text h1 {
+      color: #ffffff;
+      font-size: 38px;
+      font-weight: bold;
+      margin: 0 0 10px 0;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.6);
+      letter-spacing: 0.5px;
+      line-height: 1.2;
+    }
+
+    .hero-text p {
+      color: #d0e8ff;
+      font-size: 19px;
+      margin: 0;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.5);
+    }
+
+    /* ── HEADER ── */
     header {
       text-align: center;
-      margin-bottom: 40px;
-      padding: 20px;
+      padding: 24px 20px 10px;
     }
-    header h1 {
-      font-size: 42px;
-      color: #003865;
-      margin: 0 0 20px 0;
-      font-weight: bold;
-    }
-    header p {
+    header h2 {
       font-size: 22px;
-      color: #6b7280;
+      color: #003865;
       margin: 0;
+      font-weight: 600;
     }
+
+    /* ── NAV ── */
     nav {
       text-align: center;
-      margin-bottom: 30px;
+      margin: 18px 0 30px;
     }
     nav button {
       margin: 5px;
@@ -48,12 +138,12 @@
       color: white;
     }
 
+    /* ── MAIN ── */
     main {
       flex: 1;
-      padding: 0 20px 40px 20px;
+      padding: 0 20px 40px;
     }
 
-    /* Grid de 2 columnas */
     .careers {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -96,10 +186,9 @@
       font-weight: 500;
       cursor: pointer;
     }
-    .card button:hover {
-      background: #002b4f;
-    }
+    .card button:hover { background: #002b4f; }
 
+    /* ── FOOTER ── */
     footer {
       text-align: center;
       font-size: 14px;
@@ -108,15 +197,13 @@
       background: #f1f5f9;
     }
 
-    /* Modal */
+    /* ── MODAL ── */
     .modal {
       display: none;
       position: fixed;
       z-index: 1000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
       background-color: rgba(0,0,0,0.6);
       overflow: auto;
     }
@@ -139,53 +226,115 @@
       align-items: center;
       border-radius: 10px 10px 0 0;
     }
-    .modal-body {
-      padding: 0;
-    }
+    .modal-body { padding: 0; }
     .modal iframe {
       width: 100%;
       height: 650px;
       border: none;
       border-radius: 0 0 10px 10px;
     }
-    .close {
-      cursor: pointer;
-      font-size: 22px;
-      font-weight: bold;
-    }
-    .close:hover {
-      color: #ffdddd;
-    }
+    .close { cursor: pointer; font-size: 22px; font-weight: bold; }
+    .close:hover { color: #ffdddd; }
+
     @keyframes fadeIn {
       from { opacity: 0; }
-      to { opacity: 1; }
+      to   { opacity: 1; }
     }
 
-    /* Responsivo */
+    /* ── SPINNER ── */
+    #loadingSpinner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px 20px;
+      gap: 16px;
+      color: #003865;
+      font-size: 16px;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 5px solid #e5e7eb;
+      border-top-color: #003865;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── RESPONSIVO ── */
     @media (max-width: 800px) {
-      .careers {
-        grid-template-columns: 1fr;
+      .careers { grid-template-columns: 1fr; }
+
+      .hero { height: 240px; }
+
+      .hero-admin-btn { padding: 6px 12px; font-size: 12px; top: 14px; right: 14px; }
+
+      .hero-logo {
+        height: 60px;
+        top: 14px;
+        left: 16px;
       }
+
+      .hero-text {
+        padding: 20px 100px 20px 100px;
+      }
+
+      .hero-text h1 { font-size: 22px; }
+      .hero-text p  { font-size: 14px; }
+    }
+
+    @media (max-width: 480px) {
+      .hero-text { padding: 20px 80px 20px 80px; }
+      .hero-text h1 { font-size: 18px; }
     }
   </style>
 </head>
 <body>
+
+  <!-- ── HERO BANNER ── -->
+  <div class="hero">
+    <img class="hero-bg" src="campus-juliaca.webp" alt="Campus UPeU Juliaca">
+    <div class="hero-overlay"></div>
+
+    <!-- Botón administrador arriba a la derecha -->
+    <a class="hero-admin-btn" href="admin.html">&#9881;&#65039; Administrador</a>
+
+    <!-- Logo arriba a la izquierda -->
+    <img class="hero-logo" src="logo-upeu-white.png" alt="Logo UPeU">
+
+    <!-- Texto centrado -->
+    <div class="hero-text">
+      <h1>Bienvenido al Ciclo Acad&eacute;mico 2026-1</h1>
+      <p>Universidad Peruana Uni&oacute;n &mdash; Filial Juliaca</p>
+    </div>
+  </div>
+
+  <!-- ── SUBTÍTULO ── -->
   <header>
-    <h1>Universidad Peruana Unión Filial Juliaca</h1>
-    <p>Horarios Académicos - Ciclo 2025-2</p>
+    <h2>Horarios Acad&eacute;micos &mdash; Ciclo 2026-1</h2>
   </header>
 
   <main>
-    <nav id="schoolNav"></nav>
-    <div id="schoolContent"></div>
+    <!-- Spinner mientras carga Firebase -->
+    <div id="loadingSpinner">
+      <div class="spinner"></div>
+      <span>Cargando horarios desde Firebase&hellip;</span>
+    </div>
+
+    <!-- Contenido real (oculto hasta que carguen los datos) -->
+    <div id="appContent" style="display:none;">
+      <nav id="schoolNav"></nav>
+      <div id="schoolContent"></div>
+    </div>
   </main>
 
   <footer>
-    <p>© 2025 Universidad Peruana Unión Filial Juliaca</p>
-    <p>Todos los horarios están sujetos a cambios</p>
+    <p>&copy; 2026 Universidad Peruana Uni&oacute;n Filial Juliaca</p>
+    <p>Todos los horarios est&aacute;n sujetos a cambios</p>
   </footer>
 
-  <!-- Modal para mostrar PDF -->
+  <!-- Modal PDF -->
   <div id="pdfModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -198,118 +347,6 @@
     </div>
   </div>
 
-  <script>
-    const schools = {
-      FIA: {
-        name: "Facultad de Ingeniería y Arquitectura",
-        careers: [
-          { name: "Ingeniería de Industrias Alimentarias", img: "https://blog.upeu.edu.pe/wp-content/uploads/2022/08/fruit-juice-bottle-and-healthy-water-production-pr-2021-10-19-04-09-25-utc-2048x1363-1024x682.jpg", scheduleUrl: "https://drive.google.com/file/d/1WYsYf70ozCNBBUIQwvN1eMeEfiPUtWgs/preview" },
-          { name: "Ingeniería Ambiental", img: "https://www.esneca.com/wp-content/uploads/ingenieria-ambiental-que-es.jpg", scheduleUrl: "https://drive.google.com/file/d/18me87S621E1WtdZQJPoHS6VkG2pjQHfJ/preview" },
-          { name: "Arquitectura y Urbanismo", img: "https://cm-psi.com/wp-content/uploads/2023/09/Serv-Arq-y-Urbanismo02.jpg", scheduleUrl: "https://drive.google.com/file/d/1vT1KeuczbKed16hhr_0CnqQAcRcpX3GB/preview" },
-          { name: "Arquitectura", img: "https://media.licdn.com/dms/image/v2/D4E12AQEIqJtftwjxjg/article-cover_image-shrink_720_1280/article-cover_image-shrink_720_1280/0/1696032510104?e=2147483647&v=beta&t=WSdzBwEpNbldtvIW4Ev9W243bK91rEb98KH2B_oGORo", scheduleUrl: "https://drive.google.com/file/d/1jlOoIiU8uIEsC7hYJ9rV3dULnUMV-1tf/preview" }, 
-          { name: "Ingeniería Civil", img: "https://d5tnfl9agh5vb.cloudfront.net/uploads/2016/03/habilidades-de-un-ingeniero-civil-570x363.jpg", scheduleUrl: "https://drive.google.com/file/d/1yqwRph7QmkRKj8bysBYT7H7t_7Em2zQ2/preview" },
-          { name: "Ingeniería de Sistemas", img: "https://cba.ucb.edu.bo/blog/wp-content/uploads/2021/04/desarrollo-programadores-desarrollo-tecnologias-diseno-codificacion-sitios-web_18497-1019.jpg", scheduleUrl: "https://drive.google.com/file/d/1nBpAb6_ySnQxMeO-iT5aexRNRexkyv2l/preview" }
-        ]
-      },
-      FCS: {
-        name: "Facultad de Ciencias de la Salud",
-        careers: [
-          { name: "Enfermería", img: "https://upeu.edu.pe/facultad-de-salud/wp-content/uploads/sites/6/2024/05/enfer-e1726161841770.jpg", scheduleUrl: "https://drive.google.com/file/d/1D-nYVjs6nnpc1fLq8Q4V3coTTeUlDnLA/preview" },
-          { name: "Nutrición", img: "https://scontent.flim10-1.fna.fbcdn.net/v/t39.30808-6/482123448_1047301527431571_9171378740564011403_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=127cfc&_nc_ohc=ui6GEJmhHskQ7kNvwGChcIO&_nc_oc=Adn7258nGv5Kjic75wHdrHOzR4kVpr1ctpBLQvQkqmbawKVgya3Dt5b0UrJcphrmZOU&_nc_zt=23&_nc_ht=scontent.flim10-1.fna&_nc_gid=dk-z7yOLjrPWTvGkLVnRvA&oh=00_AfZD8HrJL42mitdo0M4zSKx3J2lAlf-oKk1_xJ5ltJhOxw&oe=68E4C35D", scheduleUrl: "https://drive.google.com/file/d/1CL01AnyrzJA9pISjP4KBZBU7cap3fKqi/preview" },
-          { name: "Psicología", img: "https://upeu.edu.pe/facultad-de-salud/wp-content/uploads/sites/6/2023/08/enfermera-2023-1.jpg", scheduleUrl: "https://drive.google.com/file/d/1bpPtfRQzd3FKqYrdTnO88BUMr3SIN0cF/preview" }
-        ]
-      },
-      FCE: {
-        name: "Facultad de Ciencias Empresariales",
-        careers: [
-          { name: "Administración y Negocios Internacionales", img: "https://upeu.edu.pe/facultad-de-empresariales/wp-content/uploads/sites/2/2024/09/w-Marketing.jpg", scheduleUrl: "https://drive.google.com/file/d/12pqIEebyZloMnola2SPhptKntxMn_xYi/preview" },
-          { name: "Administración ", img: "https://adistancia.upeu.edu.pe/wp-content/uploads/2024/09/w-admin.jpg", scheduleUrl: "https://drive.google.com/file/d/1w022V4F0mW5ACf8KaElOEIXlij3Sv-xU/preview" },
-          { name: "Contabilidad, Gestión Tributaria y Aduanera", img: "https://upeu.edu.pe/facultad-de-empresariales/wp-content/uploads/sites/2/2024/09/man-conta.jpg", scheduleUrl: "https://drive.google.com/file/d/10PB4iEKj58PSm5B-Hd0dZt6uxJcCY6Q4/preview" },
-          { name: "Contabilidad y Gestión Tributaria", img: "https://adistancia.upeu.edu.pe/wp-content/uploads/2024/09/WOMAN-.jpg", scheduleUrl: "https://drive.google.com/file/d/1l7v2WvnVbd0jKQ0qBcirETrhWhwRvEYB/preview" }
-        ]
-      },
-      FACIHED: {
-        name: "Facultad de Ciencias Humanas y Educación",
-        careers: [
-          { name: "Educación Física", img: "https://scontent.flim10-1.fna.fbcdn.net/v/t1.6435-9/74495177_960545844323567_527685359933325312_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=0b6b33&_nc_ohc=NhNs1OHWn3QQ7kNvwGYkbdg&_nc_oc=AdkSCO1NcFYHhupg67DwwlyGQvPVckqeN_8CU010efpz45VrMekVUaV0Zb4j9efUvDM&_nc_zt=23&_nc_ht=scontent.flim10-1.fna&_nc_gid=N7aUN7OMLRDkFCj9aYKwiA&oh=00_AffzIBUO91QzBHYeXBAwEF755zZeOfcs_8ZOY09wqE3ahw&oe=69065B55", scheduleUrl: "https://drive.google.com/file/d/1mOtpLtJgwaWdOvN5LCJWSTL46Da0zMCV/preview" },
-          { name: "Educación Inglés y Español", img: "https://pedagogicochimbote.edu.pe/wp-content/uploads/2023/01/PORTADAS-PROGRAMAS-04.jpg", scheduleUrl: "https://drive.google.com/file/d/1gLs3LQJ8gqxG040ANaUyG2yOSxfT7Umb/preview" },
-          { name: "Educación Inicial y Puericultura", img: "https://blog.upeu.edu.pe/wp-content/uploads/2025/04/teacher-performs-exercises-to-the-children-2024-11-25-15-03-00-utc-2048x1365.jpg", scheduleUrl: "https://drive.google.com/file/d/1jWh5mGeS2WoR6cFYARr9KQEyIoKaYTxN/preview" },
-          { name: "Educación Lingüística e Inglés", img: "https://upeu.edu.pe/facultad-de-educacion/wp-content/uploads/sites/4/2024/09/INGLE-MAN-e1725403847871.jpg", scheduleUrl: "https://drive.google.com/file/d/1h1hv-YWoz25aD6hmPhkF1_yWI_jM_Wtv/preview" },
-          { name: "Educación Primaria y Pedagogìa Terapeùtica", img: "https://upeu.edu.pe/facultad-de-educacion/wp-content/uploads/sites/4/2024/09/primaria-w.jpg", scheduleUrl: "https://drive.google.com/file/d/1YhBUzF5dk3DetkpJk37Za5HDwTY95Mwx/preview" },
-          { name: "Educación Primaria", img: "https://www.tuproyectodevida.pe/wp-content/uploads/2022/11/que-es-educacion-primaria-1200x628.jpg", scheduleUrl: "https://drive.google.com/file/d/1-vgdnfoxvUwbUs6r4ser_vnUHdx8frTg/preview" }
-        ]
-      }
-    };
-
-    let activeSchool = "FIA";
-
-    function renderNav() {
-      const nav = document.getElementById("schoolNav");
-      nav.innerHTML = "";
-      Object.keys(schools).forEach((key) => {
-        const btn = document.createElement("button");
-        btn.textContent = key;
-        btn.className = key === activeSchool ? "active" : "";
-        btn.onclick = () => {
-          activeSchool = key;
-          renderNav();
-          renderContent();
-        };
-        nav.appendChild(btn);
-      });
-    }
-
-    function renderContent() {
-      const content = document.getElementById("schoolContent");
-      content.innerHTML = `
-        <h2 style="text-align:center; margin-bottom:20px;">${schools[activeSchool].name}</h2>
-        <div class="careers">
-          ${schools[activeSchool].careers.map(career => `
-            <div class="card">
-              <h3>${career.name}</h3>
-              <img src="${career.img}" alt="${career.name}">
-              <button onclick="openModal('${career.name}', '${career.scheduleUrl}')">Ver Horario</button>
-            </div>
-          `).join("")}
-        </div>
-
-        <!-- 🎥 Video de YouTube debajo de las carreras -->
-        <div style="margin-top:40px; text-align:center;">
-          <h3 style="color:#003865;">Conoce más de la Facultad</h3>
-          <div style="max-width: 900px; margin: 20px auto;">
-            <iframe width="100%" height="500"
-              src="https://www.youtube.com/embed/MVK4sv5hyjs"
-              title="Video de YouTube"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
-          </div>
-        </div>
-      `;
-    }
-
-    function openModal(title, url) {
-      document.getElementById("modalTitle").textContent = title;
-      document.getElementById("pdfFrame").src = url;
-      document.getElementById("pdfModal").style.display = "block";
-    }
-
-    document.getElementById("closeModal").onclick = () => {
-      document.getElementById("pdfModal").style.display = "none";
-      document.getElementById("pdfFrame").src = "";
-    };
-
-    window.onclick = (event) => {
-      const modal = document.getElementById("pdfModal");
-      if (event.target === modal) {
-        modal.style.display = "none";
-        document.getElementById("pdfFrame").src = "";
-      }
-    };
-
-    renderNav();
-    renderContent();
-  </script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
