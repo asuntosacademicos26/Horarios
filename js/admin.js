@@ -3,7 +3,7 @@ import {
   addFaculty, deleteFaculty,
   addCareer,  deleteCareer, updateCareer,
   toPreviewUrl, uploadFile
-} from "./firebase.js";
+} from "./supabase.js";
 
 // ── Credenciales ──────────────────────────────────────────────────
 const ADMIN_USER = "cris";

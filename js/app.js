@@ -1,4 +1,4 @@
-import { getSchools } from "./firebase.js";
+import { getSchools } from "./supabase.js";
 
 let schools      = {};
 let activeSchool = "";
@@ -105,10 +105,10 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal()
     renderNav();
     renderContent();
   } catch (err) {
-    console.error("Firebase error:", err);
+    console.error("Supabase error:", err);
     document.getElementById("loadingSpinner").innerHTML = `
       <p class="text-red-600 text-center px-4">
-        Error al conectar con Firebase.<br>
+        Error al conectar con Supabase.<br>
         <span class="text-sm text-gray-500">Verifica tu conexión e intenta de nuevo.</span>
       </p>`;
     return;
