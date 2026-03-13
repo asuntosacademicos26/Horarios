@@ -2,349 +2,122 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Horarios Académicos - UPeU Juliaca</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { upeu: { DEFAULT: "#003865", dark: "#002548", mid: "#004e8c" } },
+          keyframes: { fadeIn: { from: { opacity: 0 }, to: { opacity: 1 } } },
+          animation:  { fadeIn: "fadeIn .25s ease" }
+        }
+      }
+    }
+  </script>
   <style>
-    * { box-sizing: border-box; }
-
-    body {
-      font-family: Arial, sans-serif;
-      background: #f8fafc;
-      margin: 0;
-      padding: 0;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ── HERO ── */
-    .hero {
-      position: relative;
-      width: 100%;
-      height: 340px;
-      overflow: hidden;
-    }
-
-    .hero-bg {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center 60%;
-      display: block;
-    }
-
-    /* Gradiente oscuro sobre la imagen */
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(
-        to bottom,
-        rgba(0, 30, 65, 0.70) 0%,
-        rgba(0, 30, 65, 0.45) 100%
-      );
-    }
-
-    /* Botón admin arriba a la derecha */
-    .hero-admin-btn {
-      position: absolute;
-      top: 20px;
-      right: 24px;
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: rgba(255,255,255,0.12);
-      border: 1.5px solid rgba(255,255,255,0.35);
-      color: white;
-      padding: 8px 18px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      text-decoration: none;
-      cursor: pointer;
-      backdrop-filter: blur(4px);
-      transition: background 0.2s;
-      z-index: 10;
-    }
-    .hero-admin-btn:hover { background: rgba(255,255,255,0.22); }
-
-    /* Logo arriba a la izquierda */
-    .hero-logo {
-      position: absolute;
-      top: 22px;
-      left: 28px;
-      height: 90px;
-      width: auto;
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));
-    }
-
-    /* Texto de bienvenida centrado */
-    .hero-text {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px 160px; /* espacio lateral para no pisar el logo */
-      pointer-events: none;
-    }
-
-    .hero-text h1 {
-      color: #ffffff;
-      font-size: 38px;
-      font-weight: bold;
-      margin: 0 0 10px 0;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.6);
-      letter-spacing: 0.5px;
-      line-height: 1.2;
-    }
-
-    .hero-text p {
-      color: #d0e8ff;
-      font-size: 19px;
-      margin: 0;
-      text-shadow: 0 1px 5px rgba(0,0,0,0.5);
-    }
-
-    /* ── HEADER ── */
-    header {
-      text-align: center;
-      padding: 24px 20px 10px;
-    }
-    header h2 {
-      font-size: 22px;
-      color: #003865;
-      margin: 0;
-      font-weight: 600;
-    }
-
-    /* ── NAV ── */
-    nav {
-      text-align: center;
-      margin: 18px 0 30px;
-    }
-    nav button {
-      margin: 5px;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      background: #e5e7eb;
-      cursor: pointer;
-      font-size: 15px;
-      font-weight: 500;
-    }
-    nav button.active {
-      background: #003865;
-      color: white;
-    }
-
-    /* ── MAIN ── */
-    main {
-      flex: 1;
-      padding: 0 20px 40px;
-    }
-
-    .careers {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 40px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 20px;
-      text-align: center;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-    .card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-    }
-    .card h3 {
-      margin: 0 0 16px 0;
-      font-size: 20px;
-      color: #111827;
-    }
-    .card img {
-      width: 100%;
-      height: 280px;
-      object-fit: cover;
-      margin-bottom: 18px;
-      border-radius: 8px;
-    }
-    .card button {
-      padding: 12px 20px;
-      background: #003865;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 500;
-      cursor: pointer;
-    }
-    .card button:hover { background: #002b4f; }
-
-    /* ── FOOTER ── */
-    footer {
-      text-align: center;
-      font-size: 14px;
-      color: #6b7280;
-      padding: 15px;
-      background: #f1f5f9;
-    }
-
-    /* ── MODAL ── */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 1000;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background-color: rgba(0,0,0,0.6);
-      overflow: auto;
-    }
-    .modal-content {
-      background: white;
-      margin: 40px auto;
-      padding: 0;
-      border-radius: 10px;
-      width: 90%;
-      max-width: 950px;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
-      animation: fadeIn 0.3s;
-    }
-    .modal-header {
-      padding: 14px 20px;
-      background: #003865;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-radius: 10px 10px 0 0;
-    }
-    .modal-body { padding: 0; }
-    .modal iframe {
-      width: 100%;
-      height: 650px;
-      border: none;
-      border-radius: 0 0 10px 10px;
-    }
-    .close { cursor: pointer; font-size: 22px; font-weight: bold; }
-    .close:hover { color: #ffdddd; }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
-
-    /* ── SPINNER ── */
-    #loadingSpinner {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 60px 20px;
-      gap: 16px;
-      color: #003865;
-      font-size: 16px;
-    }
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 5px solid #e5e7eb;
-      border-top-color: #003865;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ── RESPONSIVO ── */
-    @media (max-width: 800px) {
-      .careers { grid-template-columns: 1fr; }
-
-      .hero { height: 240px; }
-
-      .hero-admin-btn { padding: 6px 12px; font-size: 12px; top: 14px; right: 14px; }
-
-      .hero-logo {
-        height: 60px;
-        top: 14px;
-        left: 16px;
-      }
-
-      .hero-text {
-        padding: 20px 100px 20px 100px;
-      }
-
-      .hero-text h1 { font-size: 22px; }
-      .hero-text p  { font-size: 14px; }
-    }
-
-    @media (max-width: 480px) {
-      .hero-text { padding: 20px 80px 20px 80px; }
-      .hero-text h1 { font-size: 18px; }
+    /* Clases dinámicas usadas en app.js – precompila en Play CDN */
+    .tw-safelist {
+      display: none !important;
     }
   </style>
 </head>
-<body>
+<body class="bg-slate-50 min-h-screen flex flex-col font-sans">
 
-  <!-- ── HERO BANNER ── -->
-  <div class="hero">
-    <img class="hero-bg" src="campus-juliaca.webp" alt="Campus UPeU Juliaca">
-    <div class="hero-overlay"></div>
+  <!-- ══════════ HERO ══════════ -->
+  <div class="relative w-full h-72 sm:h-80 overflow-hidden">
 
-    <!-- Botón administrador arriba a la derecha -->
-    <a class="hero-admin-btn" href="admin.html">&#9881;&#65039; Administrador</a>
+    <!-- Imagen campus -->
+    <img src="campus-juliaca.webp" alt="Campus UPeU Juliaca"
+         class="absolute inset-0 w-full h-full object-cover object-[center_60%]">
 
-    <!-- Logo arriba a la izquierda -->
-    <img class="hero-logo" src="logo-upeu-white.png" alt="Logo UPeU">
+    <!-- Gradiente oscuro -->
+    <div class="absolute inset-0 bg-gradient-to-b from-[#003865]/80 via-[#003865]/55 to-[#003865]/40"></div>
+
+    <!-- Logo — arriba izquierda -->
+    <img src="logo-upeu-white.png" alt="Logo UPeU"
+         class="absolute top-4 left-5 h-16 sm:h-20 w-auto drop-shadow-xl z-10"
+         onerror="this.style.display='none'">
+
+    <!-- Botón Admin — arriba derecha -->
+    <a href="admin.html"
+       class="absolute top-4 right-5 z-10 inline-flex items-center gap-2
+              bg-white/15 hover:bg-white/25 border border-white/35
+              text-white text-xs sm:text-sm font-semibold
+              px-3 py-2 sm:px-4 rounded-xl backdrop-blur-sm transition-colors select-none">
+      ⚙️ <span class="hidden sm:inline">Administrador</span><span class="sm:hidden">Admin</span>
+    </a>
 
     <!-- Texto centrado -->
-    <div class="hero-text">
-      <h1>Bienvenido al Ciclo Acad&eacute;mico 2026-1</h1>
-      <p>Universidad Peruana Uni&oacute;n &mdash; Filial Juliaca</p>
+    <div class="absolute inset-0 flex flex-col items-center justify-center text-center px-28 sm:px-44 pointer-events-none">
+      <h1 class="text-white text-2xl sm:text-4xl font-extrabold drop-shadow-lg leading-tight tracking-tight">
+        Bienvenido al Ciclo Acad&eacute;mico 2026-1
+      </h1>
+      <p class="mt-2 text-blue-100 text-sm sm:text-lg drop-shadow">
+        Universidad Peruana Uni&oacute;n &mdash; Filial Juliaca
+      </p>
     </div>
   </div>
 
-  <!-- ── SUBTÍTULO ── -->
-  <header>
-    <h2>Horarios Acad&eacute;micos &mdash; Ciclo 2026-1</h2>
+  <!-- ══════════ SUBTÍTULO ══════════ -->
+  <header class="text-center py-6 px-4 border-b border-slate-200 bg-white">
+    <h2 class="text-lg sm:text-xl font-bold text-[#003865]">
+      Horarios Acad&eacute;micos &mdash; Ciclo 2026-1
+    </h2>
   </header>
 
-  <main>
-    <!-- Spinner mientras carga Firebase -->
-    <div id="loadingSpinner">
-      <div class="spinner"></div>
-      <span>Cargando horarios desde Firebase&hellip;</span>
+  <!-- ══════════ MAIN ══════════ -->
+  <main class="flex-1 px-4 sm:px-6 pb-12">
+
+    <!-- Spinner -->
+    <div id="loadingSpinner" class="flex flex-col items-center justify-center gap-4 py-20 text-[#003865]">
+      <div class="w-12 h-12 border-4 border-blue-100 border-t-[#003865] rounded-full animate-spin"></div>
+      <span class="text-sm text-slate-500">Cargando horarios desde Firebase&hellip;</span>
     </div>
 
-    <!-- Contenido real (oculto hasta que carguen los datos) -->
-    <div id="appContent" style="display:none;">
-      <nav id="schoolNav"></nav>
+    <!-- Contenido (oculto hasta que carguen los datos) -->
+    <div id="appContent" style="display:none">
+      <nav id="schoolNav" class="flex flex-wrap justify-center gap-2 py-6"></nav>
       <div id="schoolContent"></div>
     </div>
+
   </main>
 
-  <footer>
+  <!-- ══════════ FOOTER ══════════ -->
+  <footer class="bg-slate-100 border-t border-slate-200 text-center text-xs text-slate-500 py-4 space-y-1">
     <p>&copy; 2026 Universidad Peruana Uni&oacute;n Filial Juliaca</p>
     <p>Todos los horarios est&aacute;n sujetos a cambios</p>
   </footer>
 
-  <!-- Modal PDF -->
-  <div id="pdfModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <span id="modalTitle">Horario</span>
-        <span class="close" id="closeModal">&times;</span>
+  <!-- ══════════ MODAL PDF ══════════ -->
+  <div id="pdfModal"
+       style="display:none"
+       class="fixed inset-0 z-50 bg-black/60 flex items-start justify-center overflow-y-auto py-8 px-3">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+      <div class="flex items-center justify-between bg-[#003865] px-5 py-3">
+        <span id="modalTitle" class="text-white font-semibold text-sm sm:text-base truncate pr-4"></span>
+        <button id="closeModal"
+                class="text-white/80 hover:text-white text-2xl leading-none font-bold shrink-0 transition-colors">
+          &times;
+        </button>
       </div>
-      <div class="modal-body">
-        <iframe id="pdfFrame"></iframe>
-      </div>
+      <iframe id="pdfFrame" class="w-full border-none" style="height:65vh" allowfullscreen></iframe>
     </div>
+  </div>
+
+  <!-- Precompila clases dinámicas de app.js para Tailwind Play CDN -->
+  <div class="tw-safelist
+    grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto
+    bg-white rounded-2xl shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-200 overflow-hidden flex flex-col
+    w-full h-52 object-cover
+    p-5 text-center flex-1 justify-between
+    text-base font-semibold text-gray-800 mb-4 leading-snug
+    ver-horario w-full bg-[#003865] hover:bg-[#002548] active:scale-95 text-white py-2.5 rounded-xl text-sm font-semibold transition-all
+    text-2xl font-bold text-gray-800 mb-8
+    mt-14 text-center max-w-4xl mx-auto
+    text-xl font-semibold text-[#003865] mb-5
+    rounded-2xl overflow-hidden shadow-md">
   </div>
 
   <script type="module" src="js/app.js"></script>

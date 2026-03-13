@@ -3,642 +3,408 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administrador – UPeU Horarios</title>
+  <title>Administrador — UPeU Horarios</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { upeu: { DEFAULT:"#003865", dark:"#002548", mid:"#004e8c" } },
+          keyframes: {
+            fadeInUp: { from:{opacity:0,transform:"translateY(20px)"}, to:{opacity:1,transform:"translateY(0)"} },
+            fadeIn:   { from:{opacity:0}, to:{opacity:1} }
+          },
+          animation: { fadeInUp:"fadeInUp .35s ease", fadeIn:"fadeIn .2s ease" }
+        }
+      }
+    }
+  </script>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --blue:      #003865;
-      --blue-dark: #002548;
-      --blue-mid:  #004e8c;
-      --accent:    #f59e0b;
-      --danger:    #dc2626;
-      --success:   #16a34a;
-      --bg:        #f1f5f9;
-      --card:      #ffffff;
-      --text:      #1e293b;
-      --muted:     #64748b;
-      --border:    #e2e8f0;
-      --sidebar-w: 230px;
-    }
-
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    /* ══════════════════════════════════════
-       LOGIN
-    ══════════════════════════════════════ */
-    #loginScreen {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: linear-gradient(135deg, var(--blue) 0%, var(--blue-mid) 100%);
-    }
-
-    .login-card {
-      background: white;
-      border-radius: 16px;
-      padding: 48px 40px;
-      width: 100%;
-      max-width: 380px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.25);
-      text-align: center;
-    }
-
-    .login-card img {
-      height: 80px;
-      margin-bottom: 24px;
-      filter: none;
-    }
-
-    .login-card h2 {
-      font-size: 22px;
-      color: var(--blue);
-      margin-bottom: 8px;
-    }
-
-    .login-card p {
-      color: var(--muted);
-      font-size: 14px;
-      margin-bottom: 28px;
-    }
-
-    .login-card input {
-      width: 100%;
-      padding: 12px 16px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 15px;
-      margin-bottom: 14px;
-      transition: border-color 0.2s;
-      outline: none;
-    }
-
-    .login-card input:focus { border-color: var(--blue); }
-
-    .login-card button[type="submit"] {
-      width: 100%;
-      padding: 13px;
-      background: var(--blue);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 4px;
-    }
-
-    .login-card button[type="submit"]:hover { background: var(--blue-dark); }
-
-    #loginError {
-      color: var(--danger);
-      font-size: 13px;
-      min-height: 18px;
-      margin-bottom: 10px;
-      text-align: left;
-    }
-
-    /* ══════════════════════════════════════
-       DASHBOARD
-    ══════════════════════════════════════ */
-    #dashboard {
-      display: none;
-      min-height: 100vh;
-      flex-direction: column;
-    }
-
-    /* Header */
-    .dash-header {
-      background: var(--blue);
-      color: white;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 0 28px;
-      height: 62px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
-
-    .dash-header img { height: 38px; }
-
-    .dash-header h1 {
-      font-size: 18px;
-      font-weight: 600;
-      flex: 1;
-    }
-
-    .back-link {
-      color: #a8c7e8;
-      text-decoration: none;
-      font-size: 13px;
-      margin-right: 8px;
-    }
-    .back-link:hover { color: white; }
-
-    #logoutBtn {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.3);
-      color: white;
-      padding: 7px 16px;
-      border-radius: 7px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    #logoutBtn:hover { background: rgba(255,255,255,0.22); }
-
-    /* Layout */
-    .dash-body {
-      display: flex;
-      flex: 1;
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: var(--sidebar-w);
-      background: var(--blue-dark);
-      padding: 24px 0;
-      flex-shrink: 0;
-      min-height: calc(100vh - 62px);
-    }
-
-    .sidebar-label {
-      color: #7fa8c9;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      padding: 0 20px 10px;
-    }
-
-    .tab-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      padding: 12px 20px;
-      background: transparent;
-      border: none;
-      color: #a8c7e8;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      text-align: left;
-      border-left: 3px solid transparent;
-      transition: background 0.15s, color 0.15s;
-    }
-
-    .tab-btn:hover { background: rgba(255,255,255,0.07); color: white; }
-
-    .tab-btn.active {
-      background: rgba(255,255,255,0.1);
-      color: white;
-      border-left-color: var(--accent);
-    }
-
-    .tab-btn .icon { font-size: 18px; }
-
-    /* Main content */
-    .dash-main {
-      flex: 1;
-      padding: 32px;
-      overflow-y: auto;
-    }
-
-    /* Tab panes */
-    .tab-pane { display: none; }
-    .tab-pane.active { display: block; }
-
-    /* Section title */
-    .section-title {
-      font-size: 22px;
-      font-weight: 700;
-      color: var(--blue);
-      margin-bottom: 4px;
-    }
-
-    .section-sub {
-      color: var(--muted);
-      font-size: 13px;
-      margin-bottom: 28px;
-    }
-
-    /* Cards */
-    .panel-card {
-      background: var(--card);
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.07);
-      padding: 24px;
-      margin-bottom: 24px;
-    }
-
-    .panel-card h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--blue);
-      margin-bottom: 18px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    /* Forms */
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 14px;
-    }
-
-    .form-row.single { grid-template-columns: 1fr; }
-
-    .form-group { display: flex; flex-direction: column; gap: 6px; }
-
-    .form-group label { font-size: 13px; font-weight: 600; color: var(--muted); }
-
-    .form-group input, .form-group select {
-      padding: 10px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-      transition: border-color 0.2s;
-      color: var(--text);
-    }
-
-    .form-group input:focus, .form-group select:focus { border-color: var(--blue); }
-
-    .form-hint {
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
-    /* Image preview */
-    #imgPreviewBox {
-      display: none;
-      margin-top: 10px;
-      border-radius: 8px;
-      overflow: hidden;
-      max-width: 260px;
-      border: 2px solid var(--border);
-    }
-
-    #imgPreview {
-      width: 100%;
-      height: 140px;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* Form actions */
-    .form-actions {
-      display: flex;
-      gap: 10px;
-      margin-top: 18px;
-      flex-wrap: wrap;
-    }
-
-    /* Buttons */
-    button, .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      transition: opacity 0.15s, background 0.15s;
-    }
-
-    button:disabled { opacity: 0.55; cursor: not-allowed; }
-
-    .btn-primary   { background: var(--blue);    color: white; }
-    .btn-primary:hover:not(:disabled) { background: var(--blue-dark); }
-
-    .btn-secondary { background: #e2e8f0; color: var(--text); }
-    .btn-secondary:hover { background: #cbd5e1; }
-
-    .btn-danger    { background: #fee2e2; color: var(--danger); }
-    .btn-danger:hover { background: #fecaca; }
-
-    .btn-outline   { background: white; border: 1.5px solid var(--blue); color: var(--blue); }
-    .btn-outline:hover { background: #eff6ff; }
-
-    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
-
-    /* Faculty select */
-    .faculty-selector {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 22px;
-      flex-wrap: wrap;
-    }
-
-    .faculty-selector label { font-size: 14px; font-weight: 600; color: var(--muted); white-space: nowrap; }
-
-    .faculty-selector select {
-      padding: 9px 14px;
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      font-size: 14px;
-      color: var(--text);
-      outline: none;
-      min-width: 280px;
-    }
-
-    /* Faculty table */
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #f8fafc; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
-    td { padding: 12px 14px; border-bottom: 1px solid var(--border); font-size: 14px; vertical-align: middle; }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: #f8fafc; }
-
-    .badge {
-      display: inline-block;
-      background: #dbeafe;
-      color: #1d4ed8;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    /* Career grid */
-    .career-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 20px;
-    }
-
-    .career-card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      overflow: hidden;
-      border: 1px solid var(--border);
-      transition: box-shadow 0.2s;
-    }
-
-    .career-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
-
-    .career-card img {
-      width: 100%;
-      height: 140px;
-      object-fit: cover;
-      display: block;
-    }
-
-    .career-card-body { padding: 14px; }
-    .career-card-body h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; line-height: 1.35; }
-
-    .career-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-
-    /* Empty message */
-    .empty-msg { color: var(--muted); font-size: 14px; padding: 20px 0; }
-
-    /* PDF Modal */
-    #pdfModal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.65);
-      z-index: 999;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .pdf-modal-content {
-      background: white;
-      border-radius: 12px;
-      width: 100%;
-      max-width: 960px;
-      max-height: 90vh;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    }
-
-    .pdf-modal-header {
-      background: var(--blue);
-      color: white;
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-    }
-
-    .pdf-modal-header button {
-      background: transparent;
-      border: none;
-      color: white;
-      font-size: 22px;
-      cursor: pointer;
-      padding: 0 4px;
-      line-height: 1;
-    }
-
-    #pdfFrame {
-      width: 100%;
-      flex: 1;
-      border: none;
-      min-height: 600px;
-    }
-
-    /* Toast */
-    .toast {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      background: var(--success);
-      color: white;
-      padding: 14px 22px;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 500;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateY(10px);
-      transition: opacity 0.3s, transform 0.3s;
-      z-index: 9999;
-      max-width: 340px;
-    }
-
-    .toast.show { opacity: 1; transform: translateY(0); }
-    .toast.error { background: var(--danger); }
-
-    /* Responsive */
-    @media (max-width: 700px) {
-      .sidebar { display: none; }
-      .form-row { grid-template-columns: 1fr; }
-      .dash-main { padding: 20px; }
-    }
+    /* Estado drag-over en las zonas de arrastre */
+    .drop-active { border-color:#003865 !important; background:#eff6ff !important; }
+    /* Transición suave en zonas */
+    [id$="DropZone"] { transition: border-color .2s, background .2s; }
   </style>
 </head>
-<body>
+<body class="font-sans antialiased">
 
-<!-- ══════════════════════════════════════
+<!-- ══════════════════════════════════
      PANTALLA DE LOGIN
-══════════════════════════════════════ -->
-<div id="loginScreen">
-  <div class="login-card">
-    <img src="logo-upeu-white.png" alt="Logo UPeU"
-         onerror="this.style.display='none'">
-    <h2>Panel de Administración</h2>
-    <p>Ingresa tus credenciales para continuar</p>
-    <form id="loginForm" autocomplete="off">
-      <input type="text"     id="username" placeholder="Usuario"     required autocomplete="off">
-      <input type="password" id="password" placeholder="Contraseña"  required>
-      <div id="loginError"></div>
-      <button type="submit">Ingresar</button>
-    </form>
+══════════════════════════════════ -->
+<div id="loginScreen"
+     class="min-h-screen flex items-center justify-center
+            bg-gradient-to-br from-[#003865] via-[#004e8c] to-[#002548] p-4">
+  <div class="w-full max-w-sm animate-fadeInUp">
+
+    <!-- Encabezado con logo -->
+    <div class="bg-[#002548] rounded-t-2xl px-8 pt-10 pb-6 text-center">
+      <img src="logo-upeu-white.png" alt="Logo UPeU"
+           class="h-20 w-auto mx-auto mb-4 drop-shadow-xl" onerror="this.style.display='none'">
+      <h1 class="text-white text-xl font-extrabold tracking-tight">UPeU Filial Juliaca</h1>
+      <p class="text-blue-300 text-xs mt-1">Horarios Académicos 2026-1</p>
+    </div>
+
+    <!-- Formulario -->
+    <div class="bg-white rounded-b-2xl px-8 pt-6 pb-8 shadow-2xl">
+      <div class="text-center mb-6">
+        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[#003865]/10 mb-3">
+          <svg class="w-6 h-6 text-[#003865]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+          </svg>
+        </div>
+        <h2 class="text-lg font-bold text-slate-800">Acceso Administrador</h2>
+        <p class="text-slate-400 text-xs mt-1">Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <form id="loginForm" autocomplete="off" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Usuario</label>
+          <input id="username" type="text" placeholder="Usuario" required autocomplete="off"
+                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                        focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865]
+                        transition-colors placeholder:text-slate-300">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">Contraseña</label>
+          <input id="password" type="password" placeholder="••••••••" required
+                 class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                        focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865]
+                        transition-colors placeholder:text-slate-300">
+        </div>
+        <p id="loginError" class="text-red-500 text-xs font-medium min-h-[16px]"></p>
+        <button type="submit"
+                class="w-full bg-[#003865] hover:bg-[#002548] active:scale-95
+                       text-white font-semibold py-3 rounded-xl text-sm
+                       transition-all shadow-md shadow-[#003865]/30">
+          Ingresar al panel
+        </button>
+      </form>
+      <p class="text-center mt-5">
+        <a href="index.html" class="text-xs text-slate-400 hover:text-[#003865] transition-colors">
+          ← Volver al sitio principal
+        </a>
+      </p>
+    </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
+<!-- ══════════════════════════════════
      DASHBOARD
-══════════════════════════════════════ -->
-<div id="dashboard">
+══════════════════════════════════ -->
+<div id="dashboard" style="display:none" class="min-h-screen flex flex-col bg-slate-100">
 
   <!-- Header -->
-  <div class="dash-header">
-    <img src="logo-upeu-white.png" alt="Logo UPeU" onerror="this.style.display='none'">
-    <h1>Panel de Administración &mdash; UPeU Juliaca</h1>
-    <a href="index.html" class="back-link">&#8592; Ir al sitio</a>
-    <button id="logoutBtn">Cerrar sesi&oacute;n</button>
-  </div>
+  <header class="bg-[#003865] text-white flex items-center gap-3 px-5 py-3 shadow-md sticky top-0 z-40">
+    <img src="logo-upeu-white.png" alt="Logo" class="h-9 w-auto" onerror="this.style.display='none'">
+    <div class="flex-1 min-w-0">
+      <h1 class="text-sm font-bold leading-tight truncate">Panel de Administración</h1>
+      <p class="text-blue-300 text-xs hidden sm:block">Universidad Peruana Unión — Filial Juliaca</p>
+    </div>
+    <a href="index.html" class="hidden sm:inline-flex items-center gap-1 text-blue-200 hover:text-white text-xs transition-colors mr-2">
+      ← Sitio
+    </a>
+    <button id="logoutBtn"
+            class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20
+                   border border-white/20 transition-colors whitespace-nowrap">
+      Cerrar sesión
+    </button>
+  </header>
 
-  <div class="dash-body">
+  <!-- Body -->
+  <div class="flex flex-1 overflow-hidden">
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-label">M&oacute;dulos</div>
-      <button class="tab-btn active" data-tab="facultades">
-        <span class="icon">🏛️</span> Facultades
+    <!-- Sidebar (escritorio) -->
+    <aside class="w-52 shrink-0 bg-[#002548] flex-col py-6 hidden md:flex">
+      <p class="px-5 mb-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Módulos</p>
+      <button data-tab="facultades"
+              class="flex items-center gap-3 px-5 py-3 text-sm text-white font-semibold
+                     bg-white/10 border-l-4 border-amber-400 transition-colors">
+        🏛️ Facultades
       </button>
-      <button class="tab-btn" data-tab="carreras">
-        <span class="icon">📚</span> Escuelas Profesionales
+      <button data-tab="carreras"
+              class="flex items-center gap-3 px-5 py-3 text-sm text-slate-400
+                     border-l-4 border-transparent hover:text-white hover:bg-white/5 transition-colors">
+        📚 Escuelas Prof.
       </button>
     </aside>
 
-    <!-- Content -->
-    <main class="dash-main">
+    <!-- Main -->
+    <main class="flex-1 overflow-y-auto p-5 sm:p-8 space-y-6">
 
       <!-- ── TAB: FACULTADES ── -->
-      <div id="tab-facultades" class="tab-pane active">
-        <div class="section-title">Facultades</div>
-        <div class="section-sub">Gestiona las facultades de la universidad.</div>
+      <div data-pane="facultades" class="tab-pane space-y-6">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-800">Facultades</h2>
+          <p class="text-slate-400 text-sm mt-1">Gestiona las facultades de la universidad.</p>
+        </div>
 
-        <div class="panel-card">
-          <h3>➕ Nueva Facultad</h3>
-          <form id="addFacultyForm">
-            <div class="form-row">
-              <div class="form-group">
-                <label>C&oacute;digo</label>
-                <input type="text" id="facultyKey" placeholder="Ej: FIA, FCS, FCE" required>
-                <span class="form-hint">Se convertir&aacute; a may&uacute;sculas autom&aacute;ticamente.</span>
+        <!-- Tabs móvil -->
+        <div class="flex gap-2 md:hidden">
+          <button data-tab="facultades" class="flex-1 py-2 text-sm font-semibold rounded-xl bg-[#003865] text-white">🏛️ Facultades</button>
+          <button data-tab="carreras"   class="flex-1 py-2 text-sm font-semibold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">📚 Escuelas</button>
+        </div>
+
+        <!-- Nueva facultad -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h3 class="text-base font-bold text-[#003865] pb-4 border-b border-slate-100 mb-5">➕ Nueva Facultad</h3>
+          <form id="addFacultyForm" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Código *</label>
+                <input id="facultyKey" type="text" placeholder="Ej: FIA, FCS, FCE" required
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
+                <p class="text-xs text-slate-400 mt-1">Se convierte a mayúsculas automáticamente.</p>
               </div>
-              <div class="form-group">
-                <label>Nombre completo</label>
-                <input type="text" id="facultyName" placeholder="Ej: Facultad de Ingeniería y Arquitectura" required>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nombre completo *</label>
+                <input id="facultyName" type="text" placeholder="Ej: Facultad de Ingeniería y Arquitectura" required
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
               </div>
             </div>
-            <div class="form-actions">
-              <button type="submit" class="btn-primary">➕ Agregar Facultad</button>
-            </div>
+            <button type="submit"
+                    class="bg-[#003865] hover:bg-[#002548] active:scale-95 text-white text-sm
+                           font-semibold px-6 py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50">
+              ➕ Agregar Facultad
+            </button>
           </form>
         </div>
 
-        <div class="panel-card">
-          <h3>📋 Facultades Registradas</h3>
-          <div id="facultyList"><p class="empty-msg">Cargando...</p></div>
+        <!-- Lista facultades -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h3 class="text-base font-bold text-[#003865] pb-4 border-b border-slate-100 mb-5">📋 Facultades Registradas</h3>
+          <div id="facultyList"><p class="text-slate-400 text-sm">Cargando…</p></div>
         </div>
       </div>
 
       <!-- ── TAB: CARRERAS ── -->
-      <div id="tab-carreras" class="tab-pane">
-        <div class="section-title">Escuelas Profesionales</div>
-        <div class="section-sub">Gestiona las carreras dentro de cada facultad.</div>
+      <div data-pane="carreras" class="tab-pane hidden space-y-6">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-800">Escuelas Profesionales</h2>
+          <p class="text-slate-400 text-sm mt-1">Gestiona las carreras dentro de cada facultad.</p>
+        </div>
+
+        <!-- Tabs móvil -->
+        <div class="flex gap-2 md:hidden">
+          <button data-tab="facultades" class="flex-1 py-2 text-sm font-semibold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">🏛️ Facultades</button>
+          <button data-tab="carreras"   class="flex-1 py-2 text-sm font-semibold rounded-xl bg-[#003865] text-white">📚 Escuelas</button>
+        </div>
 
         <!-- Selector de facultad -->
-        <div class="faculty-selector">
-          <label>Facultad:</label>
-          <select id="facultySelect"></select>
+        <div class="flex items-center gap-3 flex-wrap">
+          <label class="text-sm font-semibold text-slate-600 whitespace-nowrap">Facultad:</label>
+          <select id="facultySelect"
+                  class="px-4 py-2.5 border border-slate-200 rounded-xl text-sm text-slate-700 bg-white
+                         focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865]
+                         transition-colors min-w-[240px]">
+          </select>
         </div>
 
         <!-- Formulario nueva / editar carrera -->
-        <div class="panel-card" id="careerFormSection">
-          <h3 id="formTitle">➕ Nueva Escuela Profesional</h3>
-          <form id="careerForm" autocomplete="off">
-            <div class="form-row single">
-              <div class="form-group">
-                <label>Nombre de la Escuela Profesional</label>
-                <input type="text" id="careerName" placeholder="Ej: Ingeniería de Sistemas" required>
-              </div>
+        <div id="careerFormSection" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h3 id="formTitle" class="text-base font-bold text-[#003865] pb-4 border-b border-slate-100 mb-5">
+            ➕ Nueva Escuela Profesional
+          </h3>
+
+          <form id="careerForm" class="space-y-5">
+
+            <!-- Nombre -->
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nombre de la Escuela Profesional *</label>
+              <input id="careerName" type="text" placeholder="Ej: Ingeniería de Sistemas" required
+                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                            focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label>URL de la Imagen</label>
-                <input type="url" id="careerImg" placeholder="https://..." required>
-                <span class="form-hint">Pega la URL p&uacute;blica de la imagen de la carrera.</span>
-                <div id="imgPreviewBox">
-                  <img id="imgPreview" src="" alt="Vista previa">
+
+            <!-- Imagen y PDF en 2 columnas -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+              <!-- ─── ZONA IMAGEN ─── -->
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold text-slate-500">Imagen de la Carrera *</label>
+
+                <!-- Drop zone imagen -->
+                <div id="imgDropZone"
+                     class="relative border-2 border-dashed border-slate-300 rounded-2xl
+                            cursor-pointer hover:border-slate-400 hover:bg-slate-50
+                            min-h-[140px] flex flex-col items-center justify-center p-4 text-center">
+
+                  <!-- Estado vacío -->
+                  <div data-role="empty" class="flex flex-col items-center gap-2 pointer-events-none">
+                    <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3 21h18M3 10.5h18M3 6.75h18"/>
+                    </svg>
+                    <p class="text-sm font-semibold text-slate-500">Arrastra la imagen aquí</p>
+                    <p class="text-xs text-slate-400">o <span class="text-[#003865] font-semibold underline underline-offset-2">selecciona un archivo</span></p>
+                    <p class="text-[11px] text-slate-300 mt-1">PNG, JPG, WEBP · Máx. 5 MB</p>
+                  </div>
+
+                  <!-- Progreso -->
+                  <div data-role="progress" class="hidden w-full space-y-2">
+                    <p class="text-xs text-slate-500 font-medium text-center">Subiendo imagen…</p>
+                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div data-role="bar" class="h-full bg-[#003865] rounded-full transition-all duration-200" style="width:0%"></div>
+                    </div>
+                    <p data-role="pct" class="text-xs text-center text-slate-400 font-mono">0%</p>
+                  </div>
+
+                  <!-- Listo -->
+                  <div data-role="status" class="hidden w-full">
+                    <div class="flex items-center gap-3">
+                      <img id="imgPreviewThumb" src="" alt="preview"
+                           class="hidden w-16 h-16 object-cover rounded-xl border-2 border-green-300 shrink-0">
+                      <div class="flex-1 min-w-0">
+                        <p data-role="status-text" class="text-sm font-semibold text-green-700 truncate"></p>
+                        <p class="text-xs text-green-500 mt-0.5">Imagen lista</p>
+                      </div>
+                      <button type="button" data-role="clear"
+                              class="shrink-0 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors">
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
+
+                  <input id="imgFileInput" type="file" accept="image/*" class="hidden">
                 </div>
+
+                <!-- Separador O -->
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-px bg-slate-200"></div>
+                  <span class="text-xs text-slate-400 font-medium px-2">o pega una URL</span>
+                  <div class="flex-1 h-px bg-slate-200"></div>
+                </div>
+
+                <!-- URL de imagen -->
+                <input id="imgUrlInput" type="url" placeholder="https://ejemplo.com/imagen.jpg"
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
               </div>
-              <div class="form-group">
-                <label>URL del Horario (PDF)</label>
-                <input type="url" id="careerSchedule" placeholder="https://drive.google.com/file/d/..." required>
-                <span class="form-hint">
-                  Acepta enlaces de Google Drive. Formato /view o /preview, ambos funcionan.
-                </span>
+
+              <!-- ─── ZONA PDF ─── -->
+              <div class="space-y-2">
+                <label class="block text-xs font-semibold text-slate-500">Horario PDF *</label>
+
+                <!-- Drop zone PDF -->
+                <div id="pdfDropZone"
+                     class="relative border-2 border-dashed border-slate-300 rounded-2xl
+                            cursor-pointer hover:border-slate-400 hover:bg-slate-50
+                            min-h-[140px] flex flex-col items-center justify-center p-4 text-center">
+
+                  <!-- Estado vacío -->
+                  <div data-role="empty" class="flex flex-col items-center gap-2 pointer-events-none">
+                    <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                    </svg>
+                    <p class="text-sm font-semibold text-slate-500">Arrastra el PDF aquí</p>
+                    <p class="text-xs text-slate-400">o <span class="text-[#003865] font-semibold underline underline-offset-2">selecciona un archivo</span></p>
+                    <p class="text-[11px] text-slate-300 mt-1">Solo PDF · Máx. 20 MB</p>
+                  </div>
+
+                  <!-- Progreso -->
+                  <div data-role="progress" class="hidden w-full space-y-2">
+                    <p class="text-xs text-slate-500 font-medium text-center">Subiendo PDF…</p>
+                    <div class="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div data-role="bar" class="h-full bg-[#003865] rounded-full transition-all duration-200" style="width:0%"></div>
+                    </div>
+                    <p data-role="pct" class="text-xs text-center text-slate-400 font-mono">0%</p>
+                  </div>
+
+                  <!-- Listo -->
+                  <div data-role="status" class="hidden w-full">
+                    <div class="flex items-center gap-3">
+                      <div class="shrink-0 w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                        <svg class="w-7 h-7 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12.75 2.75a.75.75 0 00-1.5 0V11H5.75a.75.75 0 000 1.5H11v8.25a.75.75 0 001.5 0V12.5h5.25a.75.75 0 000-1.5H12.5V2.75z"/>
+                        </svg>
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <p data-role="status-text" class="text-sm font-semibold text-green-700 truncate"></p>
+                        <p class="text-xs text-green-500 mt-0.5">PDF listo</p>
+                      </div>
+                      <button type="button" data-role="clear"
+                              class="shrink-0 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded-lg transition-colors">
+                        Quitar
+                      </button>
+                    </div>
+                  </div>
+
+                  <input id="pdfFileInput" type="file" accept=".pdf,application/pdf" class="hidden">
+                </div>
+
+                <!-- Separador O -->
+                <div class="flex items-center gap-2">
+                  <div class="flex-1 h-px bg-slate-200"></div>
+                  <span class="text-xs text-slate-400 font-medium px-2">o pega una URL</span>
+                  <div class="flex-1 h-px bg-slate-200"></div>
+                </div>
+
+                <!-- URL PDF / Google Drive -->
+                <input id="pdfUrlInput" type="url" placeholder="https://drive.google.com/file/d/..."
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
+                <p class="text-[11px] text-slate-400">
+                  Acepta Google Drive (<code class="bg-slate-100 px-1 rounded">/view</code> o <code class="bg-slate-100 px-1 rounded">/preview</code>) o URL directa de PDF.
+                </p>
               </div>
             </div>
-            <div class="form-actions">
-              <button type="submit" id="submitCareerBtn" class="btn-primary">Agregar</button>
-              <button type="button" id="cancelEditBtn" class="btn-secondary"
-                      style="display:none;" onclick="cancelEdit()">Cancelar</button>
+
+            <!-- Botones -->
+            <div class="flex gap-3 flex-wrap pt-1 border-t border-slate-100">
+              <button type="submit" id="submitCareerBtn"
+                      class="bg-[#003865] hover:bg-[#002548] active:scale-95 text-white text-sm font-semibold
+                             px-6 py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50">
+                Agregar
+              </button>
+              <button type="button" id="cancelEditBtn"
+                      class="hidden text-sm font-semibold px-6 py-2.5 rounded-xl
+                             border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+                Cancelar edición
+              </button>
             </div>
+
           </form>
         </div>
 
         <!-- Lista de carreras -->
-        <div class="panel-card">
-          <h3>📋 Escuelas Registradas</h3>
-          <div id="careerList"><p class="empty-msg">Cargando...</p></div>
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h3 class="text-base font-bold text-[#003865] pb-4 border-b border-slate-100 mb-5">📋 Escuelas Registradas</h3>
+          <div id="careerList"><p class="text-slate-400 text-sm">Cargando…</p></div>
         </div>
-      </div>
+
+      </div><!-- /tab carreras -->
 
     </main>
-  </div><!-- end dash-body -->
-</div><!-- end dashboard -->
+  </div>
+</div><!-- /dashboard -->
 
-<!-- ── MODAL PDF ── -->
-<div id="pdfModal">
-  <div class="pdf-modal-content">
-    <div class="pdf-modal-header">
-      <span>Vista de Horario</span>
-      <button id="closePdfModal">&times;</button>
+<!-- ══════════════════════════════════
+     MODAL PDF
+══════════════════════════════════ -->
+<div id="pdfModal"
+     style="display:none"
+     class="fixed inset-0 z-50 bg-black/65 flex items-start justify-center overflow-y-auto py-6 px-3">
+  <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden animate-fadeIn">
+    <div class="flex items-center justify-between bg-[#003865] px-5 py-3">
+      <span class="text-white font-semibold text-sm">Vista del Horario</span>
+      <button id="closePdfModal"
+              class="text-white/80 hover:text-white text-2xl font-bold leading-none transition-colors">
+        &times;
+      </button>
     </div>
-    <iframe id="pdfFrame" allowfullscreen></iframe>
+    <iframe id="pdfFrame" class="w-full border-none" style="height:75vh" allowfullscreen></iframe>
   </div>
 </div>
 
 <!-- Toast -->
-<div id="toast" class="toast"></div>
+<div id="toast"
+     style="opacity:0;transform:translateY(10px);transition:opacity .3s,transform .3s"
+     class="fixed bottom-6 right-6 z-[9999] max-w-xs px-5 py-3
+            rounded-xl text-white text-sm font-medium shadow-xl pointer-events-none">
+</div>
 
 <script type="module" src="js/admin.js"></script>
 </body>

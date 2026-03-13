@@ -1,5 +1,6 @@
-import { initializeApp }                              from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, set, push, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { initializeApp }                                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, set, push, remove }                    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyCkO6b1UJGw7Of1_l22IiIfwn8LzuYje-w",
@@ -11,8 +12,9 @@ const firebaseConfig = {
   appId:             "1:826520337197:web:429d7c2165fc368f57b1a4"
 };
 
-const app = initializeApp(firebaseConfig);
-const db  = getDatabase(app);
+const app     = initializeApp(firebaseConfig);
+const db      = getDatabase(app);
+const storage = getStorage(app);
 
 // ── Datos por defecto (seed si la BD está vacía) ─────────────────
 const defaultSchools = {
@@ -137,6 +139,30 @@ export async function deleteCareer(schoolKey, careerId) {
 
 export async function updateCareer(schoolKey, careerId, data) {
   await set(ref(db, `schools/${schoolKey}/careers/${careerId}`), data);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// STORAGE — subir archivo
+// ─────────────────────────────────────────────────────────────────
+
+/**
+ * Sube un archivo a Firebase Storage.
+ * @param {string}   path       Ruta destino en Storage (ej: "images/FIA/foto.jpg")
+ * @param {File}     file       Objeto File del input / drop
+ * @param {function} onProgress Callback con porcentaje 0-100
+ * @returns {Promise<string>}   Download URL público
+ */
+export function uploadFile(path, file, onProgress) {
+  return new Promise((resolve, reject) => {
+    const fileRef = sRef(storage, path);
+    const task    = uploadBytesResumable(fileRef, file);
+    task.on(
+      "state_changed",
+      snap => onProgress?.(Math.round(snap.bytesTransferred / snap.totalBytes * 100)),
+      reject,
+      () => getDownloadURL(task.snapshot.ref).then(resolve).catch(reject)
+    );
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────
