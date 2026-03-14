@@ -127,6 +127,11 @@
                      border-l-4 border-transparent hover:text-white hover:bg-white/5 transition-colors">
         📚 Escuelas Prof.
       </button>
+      <button data-tab="usuarios"
+              class="flex items-center gap-3 px-5 py-3 text-sm text-slate-400
+                     border-l-4 border-transparent hover:text-white hover:bg-white/5 transition-colors">
+        👤 Usuarios
+      </button>
     </aside>
 
     <!-- Main -->
@@ -143,18 +148,20 @@
         <div class="flex gap-2 md:hidden">
           <button data-tab="facultades" class="flex-1 py-2 text-sm font-semibold rounded-xl bg-[#003865] text-white">🏛️ Facultades</button>
           <button data-tab="carreras"   class="flex-1 py-2 text-sm font-semibold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">📚 Escuelas</button>
+          <button data-tab="usuarios"   class="flex-1 py-2 text-sm font-semibold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">👤 Usuarios</button>
         </div>
 
-        <!-- Nueva facultad -->
+        <!-- Nueva / editar facultad -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-          <h3 class="text-base font-bold text-[#003865] pb-4 border-b border-slate-100 mb-5">➕ Nueva Facultad</h3>
+          <h3 id="facultyFormTitle" class="text-base font-bold text-[#003865] pb-4 border-b border-slate-100 mb-5">➕ Nueva Facultad</h3>
           <form id="addFacultyForm" class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label class="block text-xs font-semibold text-slate-500 mb-1.5">Código *</label>
                 <input id="facultyKey" type="text" placeholder="Ej: FIA, FCS, FCE" required
                        class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
-                              focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
+                              focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865]
+                              transition-colors disabled:bg-slate-100 disabled:text-slate-400">
                 <p class="text-xs text-slate-400 mt-1">Se convierte a mayúsculas automáticamente.</p>
               </div>
               <div>
@@ -164,11 +171,18 @@
                               focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
               </div>
             </div>
-            <button type="submit"
-                    class="bg-[#003865] hover:bg-[#002548] active:scale-95 text-white text-sm
-                           font-semibold px-6 py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50">
-              ➕ Agregar Facultad
-            </button>
+            <div class="flex gap-3 flex-wrap">
+              <button type="submit" id="submitFacultyBtn"
+                      class="bg-[#003865] hover:bg-[#002548] active:scale-95 text-white text-sm
+                             font-semibold px-6 py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50">
+                ➕ Agregar Facultad
+              </button>
+              <button type="button" id="cancelFacultyEditBtn"
+                      class="hidden text-sm font-semibold px-6 py-2.5 rounded-xl
+                             border border-slate-300 text-slate-600 hover:bg-slate-100 transition-colors">
+                Cancelar edición
+              </button>
+            </div>
           </form>
         </div>
 
@@ -190,6 +204,7 @@
         <div class="flex gap-2 md:hidden">
           <button data-tab="facultades" class="flex-1 py-2 text-sm font-semibold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">🏛️ Facultades</button>
           <button data-tab="carreras"   class="flex-1 py-2 text-sm font-semibold rounded-xl bg-[#003865] text-white">📚 Escuelas</button>
+          <button data-tab="usuarios"   class="flex-1 py-2 text-sm font-semibold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">👤 Usuarios</button>
         </div>
 
         <!-- Selector de facultad -->
@@ -281,6 +296,27 @@
                 <input id="imgUrlInput" type="url" placeholder="https://ejemplo.com/imagen.jpg"
                        class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
                               focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
+
+                <!-- Control de encuadre -->
+                <div id="imgPositionControl" class="hidden space-y-3 p-4 bg-slate-50 rounded-xl border border-slate-200">
+                  <p class="text-xs font-semibold text-slate-500">📐 Ajustar encuadre de imagen</p>
+                  <div class="relative w-full rounded-lg overflow-hidden border border-slate-200 bg-slate-100" style="height:110px">
+                    <img id="imgPositionPreview" src="" alt="preview"
+                         class="w-full h-full object-cover" style="object-position:50% 50%">
+                  </div>
+                  <div class="space-y-2">
+                    <div class="flex items-center gap-3">
+                      <span class="text-[11px] text-slate-500 w-20 shrink-0">Horizontal</span>
+                      <input id="imgPosX" type="range" min="0" max="100" value="50" class="flex-1 accent-[#003865]">
+                      <span id="imgPosXVal" class="text-[11px] font-mono text-slate-400 w-8 text-right">50%</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                      <span class="text-[11px] text-slate-500 w-20 shrink-0">Vertical</span>
+                      <input id="imgPosY" type="range" min="0" max="100" value="50" class="flex-1 accent-[#003865]">
+                      <span id="imgPosYVal" class="text-[11px] font-mono text-slate-400 w-8 text-right">50%</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <!-- ─── ZONA PDF ─── -->
@@ -376,6 +412,53 @@
         </div>
 
       </div><!-- /tab carreras -->
+
+      <!-- ── TAB: USUARIOS ── -->
+      <div data-pane="usuarios" class="tab-pane hidden space-y-6">
+        <div>
+          <h2 class="text-2xl font-extrabold text-slate-800">Usuarios</h2>
+          <p class="text-slate-400 text-sm mt-1">Gestiona los usuarios con acceso al panel de administración.</p>
+        </div>
+
+        <!-- Tabs móvil -->
+        <div class="flex gap-2 md:hidden">
+          <button data-tab="facultades" class="flex-1 py-2 text-sm font-semibold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">🏛️ Facultades</button>
+          <button data-tab="carreras"   class="flex-1 py-2 text-sm font-semibold rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50">📚 Escuelas</button>
+          <button data-tab="usuarios"   class="flex-1 py-2 text-sm font-semibold rounded-xl bg-[#003865] text-white">👤 Usuarios</button>
+        </div>
+
+        <!-- Nuevo usuario -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h3 class="text-base font-bold text-[#003865] pb-4 border-b border-slate-100 mb-5">➕ Nuevo Usuario</h3>
+          <form id="addUserForm" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Nombre de usuario *</label>
+                <input id="newUsername" type="text" placeholder="Ej: admin2" required autocomplete="off"
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-500 mb-1.5">Contraseña *</label>
+                <input id="newPassword" type="password" placeholder="••••••••" required
+                       class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm
+                              focus:outline-none focus:ring-2 focus:ring-[#003865]/30 focus:border-[#003865] transition-colors">
+              </div>
+            </div>
+            <button type="submit"
+                    class="bg-[#003865] hover:bg-[#002548] active:scale-95 text-white text-sm
+                           font-semibold px-6 py-2.5 rounded-xl transition-all shadow-sm disabled:opacity-50">
+              Agregar Usuario
+            </button>
+          </form>
+        </div>
+
+        <!-- Lista usuarios -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+          <h3 class="text-base font-bold text-[#003865] pb-4 border-b border-slate-100 mb-5">👥 Usuarios Registrados</h3>
+          <div id="userList"><p class="text-slate-400 text-sm">Cargando…</p></div>
+        </div>
+      </div><!-- /tab usuarios -->
 
     </main>
   </div>

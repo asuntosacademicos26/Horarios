@@ -38,16 +38,43 @@ function renderContent() {
   const content = document.getElementById("schoolContent");
 
   const cards = school.careers.map(c => `
-    <div class="bg-white rounded-2xl shadow hover:shadow-lg hover:-translate-y-1 transition-all duration-200 overflow-hidden flex flex-col">
+    <div class="ver-horario group relative cursor-pointer rounded-2xl overflow-hidden shadow-md
+                transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 active:scale-95"
+         data-name="${esc(c.name)}" data-url="${esc(c.scheduleUrl)}">
+
+      <!-- Imagen de fondo -->
       <img src="${esc(c.img)}" alt="${esc(c.name)}"
-           class="w-full h-52 object-cover"
+           class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105"
+           style="object-position:${esc(c.imgPosition||'50% 50%')}"
            onerror="this.src='https://placehold.co/400x208/e2e8f0/64748b?text=Sin+imagen'">
-      <div class="p-5 text-center flex flex-col flex-1 justify-between">
-        <h3 class="text-base font-semibold text-gray-800 mb-4 leading-snug">${esc(c.name)}</h3>
-        <button class="ver-horario w-full bg-[#003865] hover:bg-[#002548] active:scale-95 text-white py-2.5 rounded-xl text-sm font-semibold transition-all"
-                data-name="${esc(c.name)}" data-url="${esc(c.scheduleUrl)}">
-          Ver Horario
-        </button>
+
+      <!-- Overlay oscuro al hacer hover -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent
+                  opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+      <!-- Contenido inferior -->
+      <div class="absolute bottom-0 left-0 right-0 p-4 translate-y-2 group-hover:translate-y-0
+                  transition-transform duration-300">
+        <h3 class="text-white text-sm font-bold leading-snug drop-shadow text-center
+                   opacity-0 group-hover:opacity-100 transition-opacity duration-300 mb-2">
+          ${esc(c.name)}
+        </h3>
+        <div class="flex items-center justify-center gap-2 bg-white/20 backdrop-blur-sm
+                    border border-white/30 rounded-xl py-2 px-3
+                    opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+          </svg>
+          <span class="text-white text-xs font-semibold">Ver Horario</span>
+        </div>
+      </div>
+
+      <!-- Nombre visible siempre (parte baja con gradiente suave) -->
+      <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent
+                  px-4 pb-3 pt-8 group-hover:opacity-0 transition-opacity duration-300">
+        <h3 class="text-white text-sm font-semibold text-center leading-snug drop-shadow">
+          ${esc(c.name)}
+        </h3>
       </div>
     </div>
   `).join("");

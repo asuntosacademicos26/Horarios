@@ -1,21 +1,19 @@
 import {
   getSchoolsRaw,
-  addFaculty, deleteFaculty,
+  addFaculty, deleteFaculty, updateFaculty,
   addCareer,  deleteCareer, updateCareer,
-  toPreviewUrl, uploadFile
+  toPreviewUrl, uploadFile,
+  getAdmins, addAdmin, deleteAdmin, checkAdminCredentials
 } from "./firebase.js";
-
-// ── Credenciales ──────────────────────────────────────────────────
-const ADMIN_USER = "cris";
-const ADMIN_PASS = "73820210";
 
 // ── Estado global ─────────────────────────────────────────────────
 let schools         = {};
 let selectedFaculty = null;
 let editingCareer   = null;
+let editingFaculty  = null;
 
 // URL actuales del formulario (de archivo subido o URL pegada)
-const formUrls = { img: "", pdf: "" };
+const formUrls = { img: "", pdf: "", imgPosition: "50% 50%" };
 
 // ── Escape XSS ────────────────────────────────────────────────────
 function esc(str) {
@@ -32,6 +30,7 @@ function showDashboard() {
   loginScreen.style.display = "none";
   dashboard.style.display   = "flex";
   loadData();
+  loadUsers();
 }
 function showLogin() {
   dashboard.style.display   = "none";
@@ -41,18 +40,27 @@ function showLogin() {
 }
 
 // ── Login ─────────────────────────────────────────────────────────
-document.getElementById("loginForm").addEventListener("submit", e => {
+document.getElementById("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
   const user  = document.getElementById("username").value.trim();
   const pass  = document.getElementById("password").value;
   const errEl = document.getElementById("loginError");
-  if (user === ADMIN_USER && pass === ADMIN_PASS) {
-    errEl.textContent = "";
-    showDashboard();
-  } else {
-    errEl.textContent = "Usuario o contraseña incorrectos.";
-    document.getElementById("password").value = "";
-    document.getElementById("password").focus();
+  const btn   = e.submitter;
+  btn.disabled = true; btn.textContent = "Verificando...";
+  try {
+    const ok = await checkAdminCredentials(user, pass);
+    if (ok) {
+      errEl.textContent = "";
+      showDashboard();
+    } else {
+      errEl.textContent = "Usuario o contraseña incorrectos.";
+      document.getElementById("password").value = "";
+      document.getElementById("password").focus();
+    }
+  } catch (err) {
+    errEl.textContent = "Error de conexión. Intenta de nuevo.";
+  } finally {
+    btn.disabled = false; btn.textContent = "Ingresar al panel";
   }
 });
 document.getElementById("logoutBtn").addEventListener("click", showLogin);
@@ -86,6 +94,79 @@ async function loadData() {
     showToast("Error al cargar datos: " + err.message, "error");
   }
 }
+
+// ── Usuarios ──────────────────────────────────────────────────────
+async function loadUsers() {
+  try {
+    const admins = await getAdmins();
+    renderUserList(admins);
+  } catch (err) {
+    showToast("Error al cargar usuarios: " + err.message, "error");
+  }
+}
+
+function renderUserList(admins) {
+  const list = document.getElementById("userList");
+  const entries = Object.entries(admins);
+  if (!entries.length) {
+    list.innerHTML = `<p class="text-slate-400 text-sm py-4">No hay usuarios registrados.</p>`;
+    return;
+  }
+  list.innerHTML = `
+    <div class="overflow-x-auto rounded-xl border border-slate-200">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wide">
+            <th class="px-4 py-3 text-left font-semibold">Usuario</th>
+            <th class="px-4 py-3 text-left font-semibold">Contraseña</th>
+            <th class="px-4 py-3 text-center font-semibold">Acción</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          ${entries.map(([id, u]) => `
+            <tr class="hover:bg-slate-50 transition-colors">
+              <td class="px-4 py-3 font-medium text-slate-700">${esc(u.username)}</td>
+              <td class="px-4 py-3 text-slate-400 font-mono text-xs">${"•".repeat(u.password.length)}</td>
+              <td class="px-4 py-3 text-center">
+                <button class="text-xs font-semibold px-3 py-1.5 rounded-lg
+                               text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 transition-colors"
+                        data-action="delete-user" data-id="${esc(id)}" data-name="${esc(u.username)}">
+                  Eliminar
+                </button>
+              </td>
+            </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+document.getElementById("addUserForm").addEventListener("submit", async e => {
+  e.preventDefault();
+  const username = document.getElementById("newUsername").value.trim();
+  const password = document.getElementById("newPassword").value;
+  if (!username || !password) return;
+  const btn = e.submitter;
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try {
+    await addAdmin(username, password);
+    e.target.reset();
+    showToast(`Usuario "${username}" creado correctamente.`);
+    await loadUsers();
+  } catch (err) { showToast(err.message, "error"); }
+  finally { btn.disabled = false; btn.textContent = "Agregar Usuario"; }
+});
+
+document.getElementById("userList").addEventListener("click", async e => {
+  const btn = e.target.closest("[data-action='delete-user']");
+  if (!btn) return;
+  const { id, name } = btn.dataset;
+  if (!confirm(`¿Eliminar al usuario "${name}"?`)) return;
+  try {
+    await deleteAdmin(id);
+    showToast(`Usuario "${name}" eliminado.`);
+    await loadUsers();
+  } catch (err) { showToast("Error: " + err.message, "error"); }
+});
 
 // ══════════════════════════════════════════════════════════════════
 //  ZONA DUAL: drag & drop  ←→  URL pegada
@@ -225,6 +306,18 @@ function setupDualZone(cfg) {
   return { setUrl: (url) => url ? showReady(url, "✓ URL actual") : showEmpty() };
 }
 
+// ── Encuadre de imagen ────────────────────────────────────────────
+function updateImgPosition() {
+  const x = document.getElementById("imgPosX").value;
+  const y = document.getElementById("imgPosY").value;
+  document.getElementById("imgPosXVal").textContent = x + "%";
+  document.getElementById("imgPosYVal").textContent = y + "%";
+  document.getElementById("imgPositionPreview").style.objectPosition = `${x}% ${y}%`;
+  formUrls.imgPosition = `${x}% ${y}%`;
+}
+document.getElementById("imgPosX").addEventListener("input", updateImgPosition);
+document.getElementById("imgPosY").addEventListener("input", updateImgPosition);
+
 // ── Inicializar zonas al cargar ───────────────────────────────────
 const imgZone = document.getElementById("imgDropZone");
 const pdfZone = document.getElementById("pdfDropZone");
@@ -241,9 +334,20 @@ const imgZoneCtrl = setupDualZone({
     const el = document.getElementById("imgPreviewThumb");
     if (el) { el.src = url; el.classList.remove("hidden"); }
   },
+  onReady: url => {
+    document.getElementById("imgPositionPreview").src = url;
+    document.getElementById("imgPositionControl").classList.remove("hidden");
+  },
   onClear: () => {
     const el = document.getElementById("imgPreviewThumb");
     if (el) { el.src = ""; el.classList.add("hidden"); }
+    document.getElementById("imgPositionControl").classList.add("hidden");
+    document.getElementById("imgPositionPreview").src = "";
+    document.getElementById("imgPosX").value = 50;
+    document.getElementById("imgPosY").value = 50;
+    document.getElementById("imgPosXVal").textContent = "50%";
+    document.getElementById("imgPosYVal").textContent = "50%";
+    formUrls.imgPosition = "50% 50%";
   }
 });
 
@@ -265,15 +369,45 @@ document.getElementById("addFacultyForm").addEventListener("submit", async e => 
   const name = document.getElementById("facultyName").value.trim();
   if (!key || !name) return;
   const btn = e.submitter;
-  btn.disabled = true; btn.textContent = "Guardando...";
+  btn.disabled = true;
+
   try {
-    await addFaculty(key, name);
-    e.target.reset();
-    showToast(`Facultad "${name}" creada correctamente.`);
+    if (editingFaculty) {
+      btn.textContent = "Actualizando...";
+      await updateFaculty(editingFaculty, name);
+      showToast(`Facultad actualizada correctamente.`);
+      cancelFacultyEdit();
+    } else {
+      btn.textContent = "Guardando...";
+      await addFaculty(key, name);
+      e.target.reset();
+      showToast(`Facultad "${name}" creada correctamente.`);
+    }
     await loadData();
   } catch (err) { showToast(err.message, "error"); }
-  finally { btn.disabled = false; btn.textContent = "Agregar Facultad"; }
+  finally { btn.disabled = false; btn.textContent = editingFaculty ? "Actualizar Facultad" : "Agregar Facultad"; }
 });
+
+function startFacultyEdit(key, name) {
+  editingFaculty = key;
+  document.getElementById("facultyKey").value = key;
+  document.getElementById("facultyKey").disabled = true;
+  document.getElementById("facultyName").value = name;
+  document.getElementById("facultyFormTitle").textContent = "✏️ Editar Facultad";
+  document.getElementById("submitFacultyBtn").textContent = "Actualizar Facultad";
+  document.getElementById("cancelFacultyEditBtn").classList.remove("hidden");
+  document.getElementById("addFacultyForm").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function cancelFacultyEdit() {
+  editingFaculty = null;
+  document.getElementById("addFacultyForm").reset();
+  document.getElementById("facultyKey").disabled = false;
+  document.getElementById("facultyFormTitle").textContent = "➕ Nueva Facultad";
+  document.getElementById("submitFacultyBtn").textContent = "Agregar Facultad";
+  document.getElementById("cancelFacultyEditBtn").classList.add("hidden");
+}
+document.getElementById("cancelFacultyEditBtn").addEventListener("click", cancelFacultyEdit);
 
 function renderFacultyList() {
   const list = document.getElementById("facultyList");
@@ -302,11 +436,18 @@ function renderFacultyList() {
               <td class="px-4 py-3 text-slate-700 font-medium">${esc(schools[k].name)}</td>
               <td class="px-4 py-3 text-center text-slate-500">${(schools[k].careers||[]).length}</td>
               <td class="px-4 py-3 text-center">
-                <button class="text-xs font-semibold px-3 py-1.5 rounded-lg
-                               text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 transition-colors"
-                        data-action="delete-faculty" data-key="${esc(k)}">
-                  Eliminar
-                </button>
+                <div class="flex items-center justify-center gap-2">
+                  <button class="text-xs font-semibold px-3 py-1.5 rounded-lg
+                                 text-[#003865] bg-blue-50 hover:bg-blue-100 border border-blue-100 transition-colors"
+                          data-action="edit-faculty" data-key="${esc(k)}" data-name="${esc(schools[k].name)}">
+                    Editar
+                  </button>
+                  <button class="text-xs font-semibold px-3 py-1.5 rounded-lg
+                                 text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 transition-colors"
+                          data-action="delete-faculty" data-key="${esc(k)}">
+                    Eliminar
+                  </button>
+                </div>
               </td>
             </tr>`).join("")}
         </tbody>
@@ -315,6 +456,9 @@ function renderFacultyList() {
 }
 
 document.getElementById("facultyList").addEventListener("click", async e => {
+  const editBtn = e.target.closest("[data-action='edit-faculty']");
+  if (editBtn) { startFacultyEdit(editBtn.dataset.key, editBtn.dataset.name); return; }
+
   const btn = e.target.closest("[data-action='delete-faculty']");
   if (!btn) return;
   const key   = btn.dataset.key;
@@ -366,11 +510,11 @@ document.getElementById("careerForm").addEventListener("submit", async e => {
   try {
     if (editingCareer) {
       await updateCareer(editingCareer.schoolKey, editingCareer.careerId,
-        { name, img, scheduleUrl: pdf });
+        { name, img, scheduleUrl: pdf, imgPosition: formUrls.imgPosition });
       showToast(`"${name}" actualizado correctamente.`);
       cancelEdit();
     } else {
-      await addCareer(selectedFaculty, { name, img, scheduleUrl: pdf });
+      await addCareer(selectedFaculty, { name, img, scheduleUrl: pdf, imgPosition: formUrls.imgPosition });
       showToast(`"${name}" agregado correctamente.`);
       resetCareerForm();
     }
@@ -389,6 +533,13 @@ function resetCareerForm() {
   pdfZoneCtrl.setUrl("");
   formUrls.img = "";
   formUrls.pdf = "";
+  formUrls.imgPosition = "50% 50%";
+  document.getElementById("imgPositionControl").classList.add("hidden");
+  document.getElementById("imgPositionPreview").src = "";
+  document.getElementById("imgPosX").value = 50;
+  document.getElementById("imgPosY").value = 50;
+  document.getElementById("imgPosXVal").textContent = "50%";
+  document.getElementById("imgPosYVal").textContent = "50%";
 }
 
 // Editar / cancelar
@@ -402,6 +553,19 @@ function startEdit(schoolKey, careerId) {
   pdfZoneCtrl.setUrl(career.scheduleUrl);
   formUrls.img = career.img;
   formUrls.pdf = career.scheduleUrl;
+
+  const pos = career.imgPosition || "50% 50%";
+  formUrls.imgPosition = pos;
+  const parts = pos.split(" ");
+  const px = parseInt(parts[0]) || 50;
+  const py = parseInt(parts[1]) || 50;
+  document.getElementById("imgPosX").value = px;
+  document.getElementById("imgPosY").value = py;
+  document.getElementById("imgPosXVal").textContent = px + "%";
+  document.getElementById("imgPosYVal").textContent = py + "%";
+  document.getElementById("imgPositionPreview").src = career.img;
+  document.getElementById("imgPositionPreview").style.objectPosition = pos;
+  document.getElementById("imgPositionControl").classList.remove("hidden");
 
   document.getElementById("formTitle").textContent       = "Editar Escuela Profesional";
   document.getElementById("submitCareerBtn").textContent  = "Actualizar";
@@ -432,6 +596,7 @@ function renderCareerList() {
         <div class="rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white">
           <img src="${esc(c.img)}" alt="${esc(c.name)}"
                class="w-full h-36 object-cover"
+               style="object-position:${esc(c.imgPosition||'50% 50%')}"
                onerror="this.src='https://placehold.co/300x144/e2e8f0/94a3b8?text=Sin+imagen'">
           <div class="p-4">
             <h4 class="text-sm font-semibold text-slate-800 leading-snug mb-3 min-h-[2.5rem]">${esc(c.name)}</h4>

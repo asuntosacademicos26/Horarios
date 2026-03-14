@@ -141,6 +141,47 @@ export async function updateCareer(schoolKey, careerId, data) {
   await set(ref(db, `schools/${schoolKey}/careers/${careerId}`), data);
 }
 
+export async function updateFaculty(key, name) {
+  await set(ref(db, `schools/${key}/name`), name);
+}
+
+// ─────────────────────────────────────────────────────────────────
+// USUARIOS ADMIN
+// ─────────────────────────────────────────────────────────────────
+
+export async function getAdmins() {
+  const snapshot = await get(ref(db, "admins"));
+  if (!snapshot.exists()) return {};
+  return snapshot.val();
+}
+
+export async function addAdmin(username, password) {
+  const snapshot = await get(ref(db, "admins"));
+  if (snapshot.exists()) {
+    const duplicate = Object.values(snapshot.val()).find(a => a.username === username);
+    if (duplicate) throw new Error(`Ya existe un usuario con el nombre "${username}"`);
+  }
+  const newRef = push(ref(db, "admins"));
+  await set(newRef, { username, password });
+}
+
+export async function deleteAdmin(id) {
+  await remove(ref(db, `admins/${id}`));
+}
+
+export async function checkAdminCredentials(username, password) {
+  const snapshot = await get(ref(db, "admins"));
+  if (!snapshot.exists()) {
+    // Seed del admin por defecto si la tabla está vacía
+    const newRef = push(ref(db, "admins"));
+    await set(newRef, { username: "cris", password: "73820210" });
+    return username === "cris" && password === "73820210";
+  }
+  return Object.values(snapshot.val()).some(
+    a => a.username === username && a.password === password
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────
 // STORAGE — subir archivo
 // ─────────────────────────────────────────────────────────────────
