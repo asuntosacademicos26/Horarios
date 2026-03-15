@@ -44,7 +44,7 @@ function renderContent() {
 
       <!-- Imagen de fondo -->
       <img src="${esc(c.img)}" alt="${esc(c.name)}"
-           class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-105"
+           class="w-full h-72 object-cover transition-transform duration-500 group-hover:scale-105"
            style="object-position:${esc(c.imgPosition||'50% 50%')}"
            onerror="this.src='https://placehold.co/400x208/e2e8f0/64748b?text=Sin+imagen'">
 
