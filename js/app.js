@@ -106,7 +106,15 @@ document.getElementById("schoolContent").addEventListener("click", e => {
 // ── Modal PDF ─────────────────────────────────────────────────────
 const pdfModal = document.getElementById("pdfModal");
 
+function isMobile() {
+  return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
+}
+
 function openModal(title, url) {
+  if (isMobile()) {
+    window.open(url, "_blank", "noopener,noreferrer");
+    return;
+  }
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("pdfFrame").src           = url;
   pdfModal.style.display = "flex";
