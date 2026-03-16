@@ -110,9 +110,19 @@ function isMobile() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
 }
 
+// Convierte /preview a URL apta para visor móvil de Google Drive
+function toMobileViewUrl(url) {
+  // Extrae el file ID y arma una URL de visor de Google Docs embebido
+  const match = url.match(/\/d\/([^/]+)\//);
+  if (match) {
+    return `https://drive.google.com/file/d/${match[1]}/view`;
+  }
+  return url;
+}
+
 function openModal(title, url) {
   if (isMobile()) {
-    window.open(url, "_blank", "noopener,noreferrer");
+    window.open(toMobileViewUrl(url), "_blank", "noopener,noreferrer");
     return;
   }
   document.getElementById("modalTitle").textContent = title;
