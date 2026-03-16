@@ -110,23 +110,30 @@ function isMobile() {
   return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768;
 }
 
-// Convierte /preview a URL apta para visor móvil de Google Drive
-function toMobileViewUrl(url) {
-  // Extrae el file ID y arma una URL de visor de Google Docs embebido
-  const match = url.match(/\/d\/([^/]+)\//);
-  if (match) {
-    return `https://drive.google.com/file/d/${match[1]}/view`;
-  }
-  return url;
+// Para Google Drive: convierte a /preview para el iframe
+function toDrivePreviewUrl(url) {
+  return url
+    .replace(/\/view(\?.*)?$/, "/preview")
+    .replace(/\/edit(\?.*)?$/, "/preview");
 }
 
 function openModal(title, url) {
+  const isGDrive = url.includes("drive.google.com");
+
+  // En móvil usar Google Docs Viewer para mostrar sin descargar
   if (isMobile()) {
-    window.open(toMobileViewUrl(url), "_blank", "noopener,noreferrer");
+    const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
+    document.getElementById("modalTitle").textContent = title;
+    document.getElementById("pdfFrame").src           = viewerUrl;
+    pdfModal.style.display = "flex";
+    document.body.style.overflow = "hidden";
     return;
   }
+
+  // Desktop: iframe directo
+  const frameUrl = isGDrive ? toDrivePreviewUrl(url) : url;
   document.getElementById("modalTitle").textContent = title;
-  document.getElementById("pdfFrame").src           = url;
+  document.getElementById("pdfFrame").src           = frameUrl;
   pdfModal.style.display = "flex";
   document.body.style.overflow = "hidden";
 }
