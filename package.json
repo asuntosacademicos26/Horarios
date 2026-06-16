@@ -1,0 +1,13 @@
+{
+  "name": "horarios-upeu-juliaca",
+  "version": "1.0.0",
+  "description": "Horarios académicos UPeU Filial Juliaca (sitio estático + Firebase)",
+  "private": true,
+  "scripts": {
+    "dev": "serve -l 8080 .",
+    "start": "serve -l 8080 ."
+  },
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
+}

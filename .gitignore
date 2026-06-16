@@ -1,0 +1,9 @@
+# Dependencias
+node_modules/
+
+# Claves / secretos (no subir nunca)
+serviceAccountKey.json
+
+# Sistema
+.DS_Store
+Thumbs.db

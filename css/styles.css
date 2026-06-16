@@ -1,0 +1,472 @@
+/* ════════════════════════════════════════════════════════════════
+   HORARIOS UPeU — Filial Juliaca
+   Sistema de diseño: institucional sobrio.
+   Navy de marca + azul acero discreto, neutros, movimiento mínimo.
+   ════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Marca */
+  --ink:        #0a2440;
+  --navy:       #003865;
+  --navy-600:   #00538f;
+  --steel:      #2f5d8a;   /* acento discreto */
+  --steel-300:  #6b89ad;
+
+  /* Neutros */
+  --bg:     #f4f6f9;
+  --bg-2:   #ffffff;
+  --card:   #ffffff;
+  --text:   #1e2a38;
+  --muted:  #64748b;
+
+  /* Líneas y sombras (sobrias) */
+  --line:       #e2e8f0;
+  --line-soft:  #edf1f6;
+  --shadow-sm:  0 1px 2px rgba(15,38,66,.05), 0 1px 3px rgba(15,38,66,.06);
+  --shadow-md:  0 6px 18px -8px rgba(15,38,66,.22);
+  --shadow-lg:  0 18px 40px -18px rgba(15,38,66,.30);
+
+  /* Tipografía */
+  --font-display: "Fraunces", Georgia, serif;
+  --font-body:    "Outfit", system-ui, sans-serif;
+
+  --ease: cubic-bezier(.4,0,.2,1);
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection { background: #cfe0f2; color: var(--ink); }
+
+/* ───────────────────────── HERO ───────────────────────── */
+.hero {
+  position: relative;
+  height: clamp(340px, 50vh, 480px);
+  overflow: hidden;
+  isolation: isolate;
+}
+.hero__img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center 60%;
+}
+.hero__veil {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--ink) 68%, transparent) 0%,
+      color-mix(in srgb, var(--navy) 50%, transparent) 50%,
+      color-mix(in srgb, var(--ink) 78%, transparent) 100%);
+}
+.hero__veil::after {
+  content: ""; position: absolute; inset: 0;
+  box-shadow: inset 0 -100px 100px -60px rgba(10,36,64,.55);
+}
+
+.hero__logo {
+  position: absolute; top: 1.4rem; left: 1.6rem; z-index: 3;
+  height: 3.75rem; width: auto;
+  filter: drop-shadow(0 3px 10px rgba(0,0,0,.4));
+}
+@media (min-width:640px){ .hero__logo { height: 4.75rem; } }
+
+.hero__admin {
+  position: absolute; top: 1.4rem; right: 1.6rem; z-index: 3;
+  display: inline-flex; align-items: center; gap: .5rem;
+  font-size: .78rem; font-weight: 600; letter-spacing: .02em;
+  color: #fff; text-decoration: none;
+  padding: .55rem .95rem;
+  border: 1px solid rgba(255,255,255,.35);
+  border-radius: 8px;
+  background: rgba(255,255,255,.12);
+  backdrop-filter: blur(6px);
+  transition: background .25s var(--ease), border-color .25s var(--ease);
+}
+.hero__admin:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.6); }
+
+.hero__content {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 0 1.5rem;
+  pointer-events: none;
+}
+.hero__kicker {
+  display: inline-flex; align-items: center; gap: .7rem;
+  font-size: .72rem; font-weight: 600;
+  letter-spacing: .28em; text-transform: uppercase;
+  color: rgba(255,255,255,.82);
+  margin-bottom: 1rem;
+  opacity: 0; animation: rise .7s var(--ease) .1s forwards;
+}
+.hero__kicker::before, .hero__kicker::after {
+  content: ""; width: 24px; height: 1px; background: rgba(255,255,255,.5);
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-size: clamp(1.9rem, 5vw, 3.25rem);
+  line-height: 1.06;
+  letter-spacing: -.01em;
+  color: #fff;
+  margin: 0;
+  max-width: 18ch;
+  text-shadow: 0 2px 24px rgba(0,0,0,.35);
+  opacity: 0; animation: rise .8s var(--ease) .2s forwards;
+}
+.hero__subtitle {
+  margin: 1rem 0 0;
+  font-size: clamp(.9rem, 1.6vw, 1.08rem);
+  font-weight: 400;
+  color: rgba(255,255,255,.82);
+  letter-spacing: .01em;
+  opacity: 0; animation: rise .8s var(--ease) .3s forwards;
+}
+.hero__rule {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 3;
+  height: 3px;
+  background: var(--navy-600);
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ───────────────────── BANDA DE SECCIÓN ───────────────────── */
+.band {
+  text-align: center;
+  padding: 1.7rem 1rem 1.5rem;
+  background: var(--bg-2);
+  border-bottom: 1px solid var(--line);
+}
+.band__eyebrow {
+  font-size: .68rem; font-weight: 600; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--steel);
+}
+.band__title {
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-size: clamp(1.5rem, 3.4vw, 2.15rem);
+  color: var(--navy);
+  margin: .5rem 0 0;
+  line-height: 1.12;
+  letter-spacing: -.015em;
+}
+.band__title::after {
+  content: "";
+  display: block;
+  width: 64px; height: 3px;
+  margin: .85rem auto 0;
+  border-radius: 3px;
+  background: var(--navy);
+}
+
+/* ───────────────────────── MAIN ───────────────────────── */
+main { flex: 1; padding: 0 1.25rem 4rem; }
+
+/* Spinner */
+.loader {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1.1rem; padding: 5rem 0; color: var(--navy);
+}
+.loader__ring {
+  width: 2.75rem; height: 2.75rem; border-radius: 999px;
+  border: 3px solid var(--line);
+  border-top-color: var(--navy);
+  animation: spin .8s linear infinite;
+}
+.loader__text { font-size: .85rem; color: var(--muted); letter-spacing: .02em; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ──────────────────── NAV DE FACULTADES ──────────────────── */
+.school-nav {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: .5rem; padding: 2.2rem 0 .5rem;
+}
+.school-pill {
+  font-family: var(--font-body);
+  font-size: .82rem; font-weight: 600; letter-spacing: .04em;
+  padding: .58rem 1.15rem;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--muted);
+  box-shadow: var(--shadow-sm);
+  transition: transform .2s var(--ease), color .2s var(--ease), border-color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.school-pill:hover {
+  color: var(--navy);
+  border-color: var(--steel-300);
+  transform: scale(1.08);
+  box-shadow: var(--shadow-md);
+}
+.school-pill:active { transform: scale(1.02); }
+.school-pill.is-active {
+  background: var(--navy);
+  color: #fff;
+  border-color: var(--navy);
+}
+
+/* ─────────────── ENCABEZADO DE FACULTAD ─────────────── */
+.faculty-head {
+  text-align: center;
+  max-width: 56rem; margin: 1.6rem auto 2.4rem;
+}
+.faculty-head__tag {
+  font-size: .68rem; font-weight: 600; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--steel);
+}
+.faculty-head__name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.45rem, 3.2vw, 2.05rem);
+  color: var(--navy);
+  margin: .4rem 0 0; line-height: 1.12;
+  letter-spacing: -.015em;
+}
+.faculty-head::after {
+  content: ""; display: block; width: 54px; height: 2px; margin: 1rem auto 0;
+  background: var(--steel);
+}
+
+/* ───────────────────── GRID DE CARRERAS ───────────────────── */
+.career-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
+  gap: 1.5rem;
+  max-width: 64rem; margin: 0 auto;
+}
+
+.career-card {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--ink);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--line);
+  transition: transform .3s var(--ease), box-shadow .3s var(--ease);
+  opacity: 0;
+  animation: cardIn .55s var(--ease) forwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.career-card:hover {
+  transform: scale(1.05) translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  z-index: 5;
+}
+.career-card:active { transform: scale(1.02); }
+.career-card__img {
+  display: block; width: 100%; height: 290px;
+  object-fit: cover;
+  transition: transform .5s var(--ease);
+}
+.career-card:hover .career-card__img { transform: scale(1.08); }
+
+.career-card__scrim {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg,
+    transparent 35%,
+    color-mix(in srgb, var(--ink) 30%, transparent) 62%,
+    color-mix(in srgb, var(--ink) 90%, transparent) 100%);
+  transition: background .35s var(--ease);
+}
+.career-card:hover .career-card__scrim {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, var(--ink) 20%, transparent) 0%,
+    color-mix(in srgb, var(--ink) 62%, transparent) 58%,
+    color-mix(in srgb, var(--ink) 93%, transparent) 100%);
+}
+
+.career-card__body {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: 1.05rem 1.15rem 1.2rem;
+}
+.career-card__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-size: 1.02rem; line-height: 1.22;
+  letter-spacing: -.005em;
+  color: #fff;
+  text-shadow: 0 1px 10px rgba(0,0,0,.55);
+}
+.career-card__cta {
+  display: inline-flex; align-items: center; gap: .45rem;
+  margin-top: .65rem;
+  font-size: .76rem; font-weight: 600; letter-spacing: .03em;
+  color: #fff;
+  max-height: 0; opacity: 0;
+  transform: translateY(6px);
+  overflow: hidden;
+  transition: max-height .35s var(--ease), opacity .3s var(--ease), transform .35s var(--ease);
+}
+.career-card:hover .career-card__cta,
+.career-card:focus-visible .career-card__cta {
+  max-height: 2rem; opacity: 1; transform: translateY(0);
+}
+.career-card__cta svg { width: .95rem; height: .95rem; }
+.career-card__cta .arrow { transition: transform .25s var(--ease); }
+.career-card:hover .career-card__cta .arrow { transform: translateX(4px); }
+
+.career-card:focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; }
+
+/* ───────────────────── SECCIÓN VIDEO ───────────────────── */
+.media {
+  margin: 4.5rem auto 0; max-width: 64rem; text-align: center;
+}
+.media__tag {
+  font-size: .68rem; font-weight: 600; letter-spacing: .22em;
+  text-transform: uppercase; color: var(--steel);
+}
+.media__title {
+  font-family: var(--font-display);
+  font-weight: 600; font-size: clamp(1.25rem, 2.6vw, 1.6rem);
+  color: var(--navy); margin: .35rem 0 1.5rem; letter-spacing: -.01em;
+}
+.media__frame {
+  border-radius: 12px; overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--line);
+  background: #000;
+  aspect-ratio: 16 / 9;
+}
+.media__frame iframe { display: block; width: 100%; height: 100%; border: 0; }
+
+/* ───────────────────────── FOOTER ───────────────────────── */
+.site-footer {
+  border-top: 3px solid var(--navy);
+  background: var(--ink);
+  color: rgba(255,255,255,.66);
+  text-align: center;
+  padding: 2rem 1rem;
+  font-size: .78rem;
+  letter-spacing: .02em;
+}
+.site-footer strong {
+  display: inline-flex; align-items: center; gap: .5rem;
+  color: #fff; font-weight: 600; font-family: var(--font-display);
+  font-size: .95rem; letter-spacing: .01em;
+}
+.site-footer p { margin: .4rem 0 0; }
+.site-footer .muted { color: rgba(255,255,255,.45); font-size: .72rem; }
+
+/* ───────────────────────── MODAL ───────────────────────── */
+.modal {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(10,36,64,.6);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: flex-start; justify-content: center;
+  overflow-y: auto; padding: 2rem .9rem;
+}
+.modal__panel {
+  background: #fff; width: 100%; max-width: 56rem;
+  border-radius: 14px; overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  animation: modalIn .3s var(--ease);
+  border: 1px solid var(--line);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.modal__bar {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  background: var(--navy);
+  padding: .85rem 1.25rem;
+}
+.modal__title {
+  color: #fff; font-weight: 600; font-size: .95rem;
+  font-family: var(--font-display);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.modal__close {
+  background: none; border: 0; cursor: pointer;
+  color: rgba(255,255,255,.8); font-size: 1.7rem; line-height: 1;
+  transition: color .2s var(--ease);
+}
+.modal__close:hover { color: #fff; }
+.modal__frame { width: 100%; height: 68vh; border: 0; display: block; }
+
+/* error de carga */
+.load-error { color: #b42318; text-align: center; padding: 0 1rem; }
+.load-error span { display: block; margin-top: .4rem; color: var(--muted); font-size: .8rem; }
+
+/* ═══════════════════════ MÓVIL ═══════════════════════ */
+@media (max-width: 640px) {
+  .hero { height: clamp(300px, 60vh, 420px); }
+  .hero__logo  { top: 1rem; left: 1rem; height: 3rem; }
+  .hero__admin { top: 1rem; right: 1rem; padding: .45rem .7rem; font-size: .72rem; }
+  .hero__kicker { letter-spacing: .2em; margin-bottom: .8rem; }
+  .hero__kicker::before, .hero__kicker::after { width: 16px; }
+  .hero__title { font-size: clamp(1.7rem, 8.5vw, 2.4rem); max-width: 14ch; }
+  .hero__subtitle { font-size: .9rem; }
+
+  .band { padding: 1.3rem 1rem 1.2rem; }
+
+  main { padding: 0 1rem 3rem; }
+
+  .school-nav { gap: .4rem; padding: 1.6rem 0 .25rem; }
+  .school-pill { font-size: .8rem; padding: .55rem 1rem; }
+
+  .faculty-head { margin: 1.2rem auto 1.8rem; }
+
+  .career-grid { gap: 1.1rem; }
+  .career-card__img { height: 240px; }
+
+  .media { margin-top: 3rem; }
+
+  .modal { padding: 1rem .6rem; }
+  .modal__bar { padding: .75rem 1rem; }
+  .modal__frame { height: 74vh; }
+}
+
+/* Pantallas pequeñas (≤380px): una sola columna garantizada */
+@media (max-width: 380px) {
+  .career-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── Dispositivos táctiles (sin hover): no depender del cursor ─── */
+@media (hover: none) {
+  /* El CTA "Ver horario" siempre visible, porque no hay hover */
+  .career-card__cta { max-height: 2rem; opacity: 1; transform: none; }
+  /* Evitar que la tarjeta/botón queden agrandados tras un toque */
+  .career-card:hover { transform: none; box-shadow: var(--shadow-md); }
+  .career-card:hover .career-card__img { transform: none; }
+  .career-card:hover .career-card__scrim {
+    background: linear-gradient(180deg,
+      transparent 35%,
+      color-mix(in srgb, var(--ink) 30%, transparent) 62%,
+      color-mix(in srgb, var(--ink) 90%, transparent) 100%);
+  }
+  .school-pill:hover { transform: none; box-shadow: var(--shadow-sm); border-color: var(--line); color: var(--muted); }
+  /* Feedback al tocar */
+  .career-card:active { transform: scale(.98); }
+  .school-pill:active { transform: scale(.97); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; }
+}
