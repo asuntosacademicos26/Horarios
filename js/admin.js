@@ -3,7 +3,7 @@ import {
   addFaculty, deleteFaculty, updateFaculty,
   addCareer,  deleteCareer, updateCareer,
   toPreviewUrl, uploadFile,
-  getAdmins, addAdmin, deleteAdmin, checkAdminCredentials
+  getAdmins, addAdmin, deleteAdmin, checkAdminCredentials, clearSession
 } from "./firebase.js";
 
 // ── Estado global ─────────────────────────────────────────────────
@@ -63,7 +63,10 @@ document.getElementById("loginForm").addEventListener("submit", async e => {
     btn.disabled = false; btn.textContent = "Ingresar al panel";
   }
 });
-document.getElementById("logoutBtn").addEventListener("click", showLogin);
+document.getElementById("logoutBtn").addEventListener("click", () => {
+  clearSession();
+  showLogin();
+});
 
 // ── Tabs ──────────────────────────────────────────────────────────
 const TAB_ON  = ["bg-white/10","text-white","border-l-4","border-amber-400","font-semibold"];
@@ -126,7 +129,7 @@ function renderUserList(admins) {
           ${entries.map(([id, u]) => `
             <tr class="hover:bg-slate-50 transition-colors">
               <td class="px-4 py-3 font-medium text-slate-700">${esc(u.username)}</td>
-              <td class="px-4 py-3 text-slate-400 font-mono text-xs">${"•".repeat(u.password.length)}</td>
+              <td class="px-4 py-3 text-slate-400 font-mono text-xs">••••••••</td>
               <td class="px-4 py-3 text-center">
                 <button class="text-xs font-semibold px-3 py-1.5 rounded-lg
                                text-red-600 bg-red-50 hover:bg-red-100 border border-red-100 transition-colors"

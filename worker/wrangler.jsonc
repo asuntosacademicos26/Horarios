@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "horarios-files",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-01",
+  "account_id": "0f25594fc36e1f8486c4520834e3ca5c",
+  "r2_buckets": [
+    {
+      "binding": "FILES",
+      "bucket_name": "horario"
+    }
+  ],
+  "observability": {
+    "enabled": true
+  }
+}

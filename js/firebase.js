@@ -1,6 +1,5 @@
-import { initializeApp }                                                from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, set, push, remove }                    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-import { getStorage, ref as sRef, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { initializeApp }                            from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, set, push, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey:            "AIzaSyCkO6b1UJGw7Of1_l22IiIfwn8LzuYje-w",
@@ -12,9 +11,11 @@ const firebaseConfig = {
   appId:             "1:826520337197:web:429d7c2165fc368f57b1a4"
 };
 
-const app     = initializeApp(firebaseConfig);
-const db      = getDatabase(app);
-const storage = getStorage(app);
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+// Worker de Cloudflare que sube y sirve imágenes/PDFs desde R2
+const UPLOAD_WORKER_URL = "https://horarios-files.horarios-upeu.workers.dev";
 
 // ── Datos por defecto (seed si la BD está vacía) ─────────────────
 const defaultSchools = {
@@ -146,63 +147,99 @@ export async function updateFaculty(key, name) {
 }
 
 // ─────────────────────────────────────────────────────────────────
-// USUARIOS ADMIN
+// USUARIOS ADMIN — vía Worker (las contraseñas nunca se leen aquí)
 // ─────────────────────────────────────────────────────────────────
 
+const TOKEN_KEY = "horarios_token";
+
+function authHeaders() {
+  const token = sessionStorage.getItem(TOKEN_KEY);
+  return token ? { "Authorization": `Bearer ${token}` } : {};
+}
+
+export function clearSession() {
+  sessionStorage.removeItem(TOKEN_KEY);
+}
+
+async function workerRequest(path, options = {}) {
+  const res = await fetch(`${UPLOAD_WORKER_URL}${path}`, {
+    ...options,
+    headers: { "Content-Type": "application/json", ...authHeaders(), ...options.headers }
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `Error ${res.status}`);
+  return data;
+}
+
 export async function getAdmins() {
-  const snapshot = await get(ref(db, "admins"));
-  if (!snapshot.exists()) return {};
-  return snapshot.val();
+  return workerRequest("/admins");
 }
 
 export async function addAdmin(username, password) {
-  const snapshot = await get(ref(db, "admins"));
-  if (snapshot.exists()) {
-    const duplicate = Object.values(snapshot.val()).find(a => a.username === username);
-    if (duplicate) throw new Error(`Ya existe un usuario con el nombre "${username}"`);
-  }
-  const newRef = push(ref(db, "admins"));
-  await set(newRef, { username, password });
+  await workerRequest("/admins", {
+    method: "POST",
+    body: JSON.stringify({ username, password })
+  });
 }
 
 export async function deleteAdmin(id) {
-  await remove(ref(db, `admins/${id}`));
+  await workerRequest(`/admins/${encodeURIComponent(id)}`, { method: "DELETE" });
 }
 
 export async function checkAdminCredentials(username, password) {
-  const snapshot = await get(ref(db, "admins"));
-  if (!snapshot.exists()) {
-    // Seed del admin por defecto si la tabla está vacía
-    const newRef = push(ref(db, "admins"));
-    await set(newRef, { username: "cris", password: "73820210" });
-    return username === "cris" && password === "73820210";
+  const res = await fetch(`${UPLOAD_WORKER_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, password })
+  });
+  if (res.status === 401) return false;
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || `Error ${res.status}`);
   }
-  return Object.values(snapshot.val()).some(
-    a => a.username === username && a.password === password
-  );
+  const { token } = await res.json();
+  sessionStorage.setItem(TOKEN_KEY, token);
+  return true;
 }
 
 // ─────────────────────────────────────────────────────────────────
-// STORAGE — subir archivo
+// STORAGE — subir archivo (Cloudflare R2 vía Worker)
 // ─────────────────────────────────────────────────────────────────
 
 /**
- * Sube un archivo a Firebase Storage.
- * @param {string}   path       Ruta destino en Storage (ej: "images/FIA/foto.jpg")
+ * Sube un archivo a Cloudflare R2 a través del Worker.
+ * @param {string}   path       Ruta destino (ej: "images/FIA/foto.jpg")
  * @param {File}     file       Objeto File del input / drop
  * @param {function} onProgress Callback con porcentaje 0-100
- * @returns {Promise<string>}   Download URL público
+ * @returns {Promise<string>}   URL pública del archivo
  */
 export function uploadFile(path, file, onProgress) {
   return new Promise((resolve, reject) => {
-    const fileRef = sRef(storage, path);
-    const task    = uploadBytesResumable(fileRef, file);
-    task.on(
-      "state_changed",
-      snap => onProgress?.(Math.round(snap.bytesTransferred / snap.totalBytes * 100)),
-      reject,
-      () => getDownloadURL(task.snapshot.ref).then(resolve).catch(reject)
-    );
+    const encodedPath = path.split("/").map(encodeURIComponent).join("/");
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", `${UPLOAD_WORKER_URL}/upload/${encodedPath}`);
+    xhr.setRequestHeader("Content-Type", file.type || "application/octet-stream");
+    const token = sessionStorage.getItem(TOKEN_KEY);
+    if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+
+    xhr.upload.onprogress = e => {
+      if (e.lengthComputable) onProgress?.(Math.round(e.loaded / e.total * 100));
+    };
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          resolve(JSON.parse(xhr.responseText).url);
+        } catch {
+          reject(new Error("Respuesta inválida del servidor"));
+        }
+      } else {
+        let msg = `Error ${xhr.status}`;
+        try { msg = JSON.parse(xhr.responseText).error || msg; } catch {}
+        reject(new Error(msg));
+      }
+    };
+    xhr.onerror = () => reject(new Error("Error de red al subir el archivo"));
+    xhr.send(file);
   });
 }
 
